@@ -1,8 +1,20 @@
 """
-Models for YourResourceModel
+Models for Promotion
 
 All of the models are stored in this module
+
+Attributes:
+category (enum) - category of the promotion
+discount_x (integer) - the discount percentage or other numbers associated with the promotion category
+discount_y (integer) - the secondary promotion attribute (i.e. buy discount_x get discount_y free)
+product_id (integer) - the id of the product associated with the discount
+description (string) - description of the promotion
+validity (boolean) - whether the promotion is valid/running
+start_date (string) - the start date of the sale
+end_date (string) - the end date of the sale
 """
+from datetime import date
+from enum import Enum
 
 import logging
 from flask_sqlalchemy import SQLAlchemy
@@ -17,9 +29,18 @@ class DataValidationError(Exception):
     """Used for an data validation errors when deserializing"""
 
 
-class YourResourceModel(db.Model):
+class Category(Enum):
+    """Enumeration for available Promotion Category"""
+
+    UNKNOWN = 0
+    PERCENTAGE_DISCOUNT_X = 1
+    BUY_X_GET_Y_FREE = 2
+    SPEND_X_SAVE_Y = 3
+
+
+class Promotion(db.Model):
     """
-    Class that represents a YourResourceModel
+    Class that represents a Promotion
     """
 
     ##################################################
@@ -27,15 +48,25 @@ class YourResourceModel(db.Model):
     ##################################################
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63))
+    category = db.Column(db.Enum(Category), nullable=False, server_default=Category.UNKNOWN.name)
+    discount_x = db.Column(db.Integer(), nullable=False, default=0)
+    discount_y = db.Column(db.Integer(), nullable=True, default=None)
+    product_id = db.Column(db.Integer(), nullable=False)
+    description = db.Column(db.String(256), nullable=False)
+    validity = db.Column(db.Boolean(), nullable=False, default=False)
+    start_date = db.Column(db.Date(), nullable=False, default=date.today())
+    end_date = db.Column(db.Date(), nullable=False, default=date.today())
+    # Database auditing fields
+    created_at = db.Column(db.DateTime, default=db.func.now(), nullable=False)
+    last_updated = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now(), nullable=False)
 
-    # Todo: Place the rest of your schema here...
 
     def __repr__(self):
-        return f"<YourResourceModel {self.name} id=[{self.id}]>"
+        return f"<Promotion {self.name} id=[{self.id}]>"
 
     def create(self):
         """
-        Creates a YourResourceModel to the database
+        Creates a Promotion to the database
         """
         logger.info("Creating %s", self.name)
         self.id = None  # pylint: disable=invalid-name
@@ -49,7 +80,7 @@ class YourResourceModel(db.Model):
 
     def update(self):
         """
-        Updates a YourResourceModel to the database
+        Updates a Promotion to the database
         """
         logger.info("Saving %s", self.name)
         try:
@@ -60,7 +91,7 @@ class YourResourceModel(db.Model):
             raise DataValidationError(e) from e
 
     def delete(self):
-        """Removes a YourResourceModel from the data store"""
+        """Removes a Promotion from the data store"""
         logger.info("Deleting %s", self.name)
         try:
             db.session.delete(self)
@@ -71,27 +102,46 @@ class YourResourceModel(db.Model):
             raise DataValidationError(e) from e
 
     def serialize(self):
-        """Serializes a YourResourceModel into a dictionary"""
-        return {"id": self.id, "name": self.name}
+        """Serializes a Promotion into a dictionary"""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "category": self.category.name,
+            "discount_x": self.discount_x,
+            "discount_y": self.discount_y,
+            "product_id": self.product_id,
+            "description": self.description,
+            "validity": self.validity,
+            "start_date": self.start_date.isoformat(),
+            "end_date": self.end_date.isoformat()
+        }
 
     def deserialize(self, data):
         """
-        Deserializes a YourResourceModel from a dictionary
+        Deserializes a Promotion from a dictionary
 
         Args:
             data (dict): A dictionary containing the resource data
         """
         try:
             self.name = data["name"]
+            self.category = Category[data["category"].upper()]
+            self.discount_x = data["discount_x"]
+            self.discount_y = data["discount_y"]
+            self.product_id = data["product_id"]
+            self.description = data["description"]
+            self.validity = data["validity"]
+            self.start_date = date.fromisoformat(data["start_date"])
+            self.end_date = date.fromisoformat(data["end_date"])
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0]) from error
         except KeyError as error:
             raise DataValidationError(
-                "Invalid YourResourceModel: missing " + error.args[0]
+                "Invalid Promotion: missing " + error.args[0]
             ) from error
         except TypeError as error:
             raise DataValidationError(
-                "Invalid YourResourceModel: body of request contained bad or no data "
+                "Invalid Promotion: body of request contained bad or no data "
                 + str(error)
             ) from error
         return self
@@ -102,22 +152,22 @@ class YourResourceModel(db.Model):
 
     @classmethod
     def all(cls):
-        """Returns all of the YourResourceModels in the database"""
-        logger.info("Processing all YourResourceModels")
+        """Returns all of the Promotions in the database"""
+        logger.info("Processing all Promotions")
         return cls.query.all()
 
     @classmethod
     def find(cls, by_id):
-        """Finds a YourResourceModel by it's ID"""
+        """Finds a Promotion by it's ID"""
         logger.info("Processing lookup for id %s ...", by_id)
         return cls.query.session.get(cls, by_id)
 
     @classmethod
     def find_by_name(cls, name):
-        """Returns all YourResourceModels with the given name
+        """Returns all Promotions with the given name
 
         Args:
-            name (string): the name of the YourResourceModels you want to match
+            name (string): the name of the Promotions you want to match
         """
         logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
