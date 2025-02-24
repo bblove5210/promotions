@@ -22,6 +22,9 @@ TestPromotion API Service Test Suite
 import os
 import logging
 from unittest import TestCase
+import json
+import sys
+sys.path.append('..')
 from wsgi import app
 from service.common import status
 from service.models import db, Promotion
@@ -72,4 +75,284 @@ class TestYourResourceService(TestCase):
         resp = self.client.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-    # Todo: Add your test cases here...
+    ##-------------------------------------------------------------------##
+
+    def test_create_promotion_success(self):
+        """
+        Test case to create new promotion.
+        """
+        # Define the input payload for a valid promotion
+        payload = {
+            "name": "Summer Sale",
+            "category": "PERCENTAGE_DISCOUNT_X",
+            "discount_x": 20,
+            "discount_y": 0,
+            "product_id": 1,
+            "description": "20% off summer sale",
+            "validity": True,
+            "start_date": "2025-06-01",
+            "end_date": "2025-06-30"
+        }
+        # Post to the promotions endpoint
+        response = self.client.post("/api/v1/createPromotion", json=payload)
+        #print(response)
+        self.assertEqual(response.status_code, 201)
+
+    ##-------------------------------------------------------------------##
+
+    def test_name_validation_create_promotion(self):
+        """
+        Test case to validate that name can only be a str.
+        """
+        # Define the input payload for a valid promotion
+        payload = {
+            "name": 1, # int
+            "category": "PERCENTAGE_DISCOUNT_X",
+            "discount_x": 20, 
+            "discount_y": 0,
+            "product_id": 1,
+            "description": "20% off summer sale",
+            "validity": True,
+            "start_date": "2025-06-01",
+            "end_date": "2025-06-30"
+        }
+        # Post to the promotions endpoint
+        response = self.client.post("/api/v1/createPromotion", json=payload)
+        #print(response)
+        self.assertEqual(response.status_code, 400)
+
+    ##-------------------------------------------------------------------##
+    
+    def test_category_validation_create_promotion(self):
+        """
+        Test case to validate that category can only be a Category obj.
+        """
+        # Define the input payload for a valid promotion
+        payload = {
+            "name": "Summer Sale",
+            "category": "random_string", # not part of category
+            "discount_x": 20, 
+            "discount_y": 0,
+            "product_id": 1,
+            "description": "20% off summer sale",
+            "validity": True,
+            "start_date": "2025-06-01",
+            "end_date": "2025-06-30"
+        }
+        # Post to the promotions endpoint
+        response = self.client.post("/api/v1/createPromotion", json=payload)
+        #print(response)
+        self.assertEqual(response.status_code, 400)
+
+    ##-------------------------------------------------------------------##
+    
+    def test_discount_x_validation_create_promotion(self):
+        """
+        Test case to validate that discount_x can only be an int.
+        """
+        # Define the input payload for a valid promotion
+        payload = {
+            "name": "Summer Sale",
+            "category": "PERCENTAGE_DISCOUNT_X",
+            "discount_x": "20", # string
+            "discount_y": 0,
+            "product_id": 1,
+            "description": "20% off summer sale",
+            "validity": True,
+            "start_date": "2025-06-01",
+            "end_date": "2025-06-30"
+        }
+        # Post to the promotions endpoint
+        response = self.client.post("/api/v1/createPromotion", json=payload)
+        #print(response)
+        self.assertEqual(response.status_code, 400)
+
+    ##-------------------------------------------------------------------##
+    
+    def test_discount_y_validation_create_promotion(self):
+        """
+        Test case to validate that discount_y can only be an int.
+        """
+        # Define the input payload for a valid promotion
+        payload = {
+            "name": "Summer Sale",
+            "category": "PERCENTAGE_DISCOUNT_X",
+            "discount_x": 20, 
+            "discount_y": "0", # str
+            "product_id": 1,
+            "description": "20% off summer sale",
+            "validity": True,
+            "start_date": "2025-06-01",
+            "end_date": "2025-06-30"
+        }
+        # Post to the promotions endpoint
+        response = self.client.post("/api/v1/createPromotion", json=payload)
+        #print(response)
+        self.assertEqual(response.status_code, 400)
+
+    ##-------------------------------------------------------------------##
+    
+    def test_product_id_validation_create_promotion(self):
+        """
+        Test case to validate that product_id can only be an int.
+        """
+        # Define the input payload for a valid promotion
+        payload = {
+            "name": "Summer Sale",
+            "category": "PERCENTAGE_DISCOUNT_X",
+            "discount_x": 20,
+            "discount_y": 0,
+            "product_id": "1", # str
+            "description": "20% off summer sale",
+            "validity": True,
+            "start_date": "2025-06-01",
+            "end_date": "2025-06-30"
+        }
+        # Post to the promotions endpoint
+        response = self.client.post("/api/v1/createPromotion", json=payload)
+        #print(response)
+        self.assertEqual(response.status_code, 400)
+
+    ##-------------------------------------------------------------------##
+
+    def test_description_validation_create_promotion(self):
+        """
+        Test case to validate that description can only be a str.
+        """
+        # Define the input payload for a valid promotion
+        payload = {
+            "name": "Summer Sale",
+            "category": "PERCENTAGE_DISCOUNT_X",
+            "discount_x": 20, 
+            "discount_y": 0,
+            "product_id": 1,
+            "description": 1, # ibt
+            "validity": True,
+            "start_date": "2025-06-01",
+            "end_date": "2025-06-30"
+        }
+        # Post to the promotions endpoint
+        response = self.client.post("/api/v1/createPromotion", json=payload)
+        #print(response)
+        self.assertEqual(response.status_code, 400)
+
+    ##-------------------------------------------------------------------##
+
+    def test_validity_validation_create_promotion(self):
+        """
+        Test case to validate that validity can only be a bool.
+        """
+        # Define the input payload for a valid promotion
+        payload = {
+            "name": "Summer Sale",
+            "category": "PERCENTAGE_DISCOUNT_X",
+            "discount_x": 20, 
+            "discount_y": 0,
+            "product_id": 1,
+            "description": "20% off summer sale",
+            "validity": "True", # str
+            "start_date": "2025-06-01",
+            "end_date": "2025-06-30"
+        }
+        # Post to the promotions endpoint
+        response = self.client.post("/api/v1/createPromotion", json=payload)
+        #print(response)
+        self.assertEqual(response.status_code, 400)
+
+    ##-------------------------------------------------------------------##
+
+    def test_start_date_validation_create_promotion(self):
+        """
+        Test case to validate that start_date can only be in YYYY-MM-DD format.
+        """
+        # Define the input payload for a valid promotion
+        payload = {
+            "name": "Summer Sale",
+            "category": "PERCENTAGE_DISCOUNT_X",
+            "discount_x": 20,
+            "discount_y": 0,
+            "product_id": 1,
+            "description": "20% off summer sale",
+            "validity": True,
+            "start_date": "23/2/2025", # some other date format
+            "end_date": "2025-06-30"
+        }
+        # Post to the promotions endpoint
+        response = self.client.post("/api/v1/createPromotion", json=payload)
+        #print(response)
+        self.assertEqual(response.status_code, 400)
+
+    ##-------------------------------------------------------------------##
+
+    def test_end_date_validation_create_promotion(self):
+        """
+        Test case to validate that end_date can only be in YYYY-MM-DD format.
+        """
+        # Define the input payload for a valid promotion
+        payload = {
+            "name": "Summer Sale",
+            "category": "PERCENTAGE_DISCOUNT_X",
+            "discount_x": 20,
+            "discount_y": 0,
+            "product_id": 1,
+            "description": "20% off summer sale",
+            "validity": True,
+            "start_date": "2025-06-01",
+            "end_date": "30/6/2025" # some other date format
+        }
+        # Post to the promotions endpoint
+        response = self.client.post("/api/v1/createPromotion", json=payload)
+        #print(response)
+        self.assertEqual(response.status_code, 400)
+
+    ##-------------------------------------------------------------------##
+
+    def test_missing_product_id_create_promotion(self):
+        """
+        Test case to check missing product_id.
+        """
+        # Define the input payload for a valid promotion
+        payload = {
+            "name": "Summer Sale",
+            "category": "PERCENTAGE_DISCOUNT_X",
+            "discount_x": 20, 
+            "discount_y": 0,
+            #"product_id": 1,
+            "description": "20% off summer sale",
+            "validity": True,
+            "start_date": "2025-06-01",
+            "end_date": "2025-06-30"
+        }
+        # Post to the promotions endpoint
+        response = self.client.post("/api/v1/createPromotion", json=payload)
+        #print(response)
+        self.assertEqual(response.status_code, 500)
+
+    ##-------------------------------------------------------------------##
+
+    def test_missing_product_description_create_promotion(self):
+        """
+        Test case to check missing product_description.
+        """
+        # Define the input payload for a valid promotion
+        payload = {
+            "name": "Summer Sale",
+            "category": "PERCENTAGE_DISCOUNT_X",
+            "discount_x": 20, 
+            "discount_y": 0,
+            "product_id": 1,
+            #"description": "20% off summer sale",
+            "validity": True,
+            "start_date": "2025-06-01",
+            "end_date": "2025-06-30"
+        }
+        # Post to the promotions endpoint
+        response = self.client.post("/api/v1/createPromotion", json=payload)
+        #print(response)
+        self.assertEqual(response.status_code, 500)
+    
+    ##-------------------------------------------------------------------##
+
+
+if __name__ == '__main__':
+    unittest.main()
