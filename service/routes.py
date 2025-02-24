@@ -45,77 +45,64 @@ def index():
 #  R E S T   A P I   E N D P O I N T S
 ######################################################################
 
-# Todo: Place your REST API code here ...
+##----------------------------------------------------------------------------##
+
 @app.route("/api/v1/createPromotion", methods=["POST"])
 def create_promotion():
+    """
+    POST API to create a new promotion.
+    Product ID and Promotion Description have to be present, the rest of them have default values.
+    """
     try:
         data = request.get_json()
-        #print(f"data - {data}")
         promotion = Promotion()
+        
         promotion.deserialize(data)
+        
         if promotion.name != None:
-            try:
-                assert type(promotion.name) == str
-            except AssertionError as e:             
+            if not isinstance(promotion.name, str):       
                 return jsonify({"error": "Promotion name must be a str"}), 400
         
         if promotion.category != None:
             if not isinstance(promotion.category, Category):
                 return jsonify({"error": "Promotion category must be a Category object"}), 400
-            # try:
-            #     print(f"type of category - {type(promotion.category)}")
-            #     assert type(promotion.category) == Category
-            # except AssertionError as e:            
-            #     return jsonify({"error": "Promotion category must be a Category object"}), 400
             
         if promotion.discount_x != None:
-            try:
-                assert type(promotion.discount_x) == int
-            except AssertionError as e:               
+            if not isinstance(promotion.discount_x, int):
                 return jsonify({"error": "Promotion discount x must be int"}), 400
         
         if promotion.discount_y != None:
-            try:
-                assert type(promotion.discount_y) == int
-            except AssertionError as e:           
+            if not isinstance(promotion.discount_y, int):
                 return jsonify({"error": "Promotion discount y must be int"}), 400
             
         
         if promotion.product_id == None:
             return jsonify({"error": "Product ID must be present"}), 500
-        try:
-            assert type(promotion.product_id) == int
-        except AssertionError as e:            
-            return jsonify({"error": "Promotion product id must be int"}), 400
+        else:
+            if not isinstance(promotion.product_id, int):
+                return jsonify({"error": "Promotion product id must be int"}), 400
 
         if promotion.description == None:
-            return jsonify({"error": "Product Description must be present"}), 500
-        try:
-            assert type(promotion.description) == str
-        except AssertionError as e:               
-            return jsonify({"error": "Promotion description must be str"}), 400
+            return jsonify({"error": "Promotion Description must be present"}), 500
+        else:
+            if not isinstance(promotion.description, str):
+                return jsonify({"error": "Promotion product description must be str"}), 400
             
         if promotion.validity != None:
-            try:
-                assert type(promotion.validity) == bool
-            except AssertionError as e:              
+            if not isinstance(promotion.validity, bool):
                 return jsonify({"error": "Promotion validity must be bool"}), 400
             
         if promotion.start_date != None:
-            try:
-                #assert type(promotion.start_date) == date
-                datetime.strptime(promotion.start_date, "%Y-%m-%d")
-            except AssertionError as e:    
-                print("here")           
+            if not isinstance(promotion.start_date, date):
                 return jsonify({"error": "Promotion start date must be in YYYY-MM-DD format"}), 400
 
         if promotion.end_date != None:
-            try:
-                #assert type(promotion.end_date) == date
-                datetime.strptime(promotion.end_date, "%Y-%m-%d")
-            except AssertionError as e:             
-                return jsonify({"error": "Promotion end date must be YYYY-MM-DD format"}), 400
+            if not isinstance(promotion.end_date, date):
+                return jsonify({"error": "Promotion end date must be in YYYY-MM-DD format"}), 400
+            
         promotion.create()
-        return jsonify(promotion.serialize()), 201
+        return jsonify(promotion.serialize()), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+    ##----------------------------------------------------------------------------##
