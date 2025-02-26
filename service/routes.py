@@ -53,56 +53,37 @@ def create_promotions():
     POST API to create a new promotion.
     Product ID and Promotion Description have to be present, the rest of them have default values.
     """
-    try:
-        data = request.get_json()
-        promotion = Promotion()
-        
-        promotion.deserialize(data)
-        
-        if promotion.name != None:
-            if not isinstance(promotion.name, str):       
-                return jsonify({"error": "Promotion name must be a str"}), 400
-        
-        if promotion.category != None:
-            if not isinstance(promotion.category, Category):
-                return jsonify({"error": "Promotion category must be a Category object"}), 400
-            
-        if promotion.discount_x != None:
-            if not isinstance(promotion.discount_x, int):
-                return jsonify({"error": "Promotion discount x must be int"}), 400
-        
-        if promotion.discount_y != None:
-            if not isinstance(promotion.discount_y, int):
-                return jsonify({"error": "Promotion discount y must be int"}), 400
-            
-        
-        if promotion.product_id == None:
-            return jsonify({"error": "Product ID must be present"}), 500
-        else:
-            if not isinstance(promotion.product_id, int):
-                return jsonify({"error": "Promotion product id must be int"}), 400
+    app.logger.info("Request to Create a Promotion...")
+    check_content_type("application/json")
 
-        if promotion.description == None:
-            return jsonify({"error": "Promotion Description must be present"}), 500
-        else:
-            if not isinstance(promotion.description, str):
-                return jsonify({"error": "Promotion product description must be str"}), 400
-            
-        if promotion.validity != None:
-            if not isinstance(promotion.validity, bool):
-                return jsonify({"error": "Promotion validity must be bool"}), 400
-            
-        if promotion.start_date != None:
-            if not isinstance(promotion.start_date, date):
-                return jsonify({"error": "Promotion start date must be in YYYY-MM-DD format"}), 400
+    promotion = Promotion()
+    data = request.get_json()
+    app.logger.info("Processing: %s", data)
+    promotion.deserialize(data)
+        
+    promotion.create()
+    app.logger.info("Promotion with new id [%s] saved", promotion.id)
 
-        if promotion.end_date != None:
-            if not isinstance(promotion.end_date, date):
-                return jsonify({"error": "Promotion end date must be in YYYY-MM-DD format"}), 400
-            
-        promotion.create()
-        return jsonify(promotion.serialize()), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    # TO BE DONE: also return the location of the newly created promotion once GET promotion is created
+    return jsonify(promotion.serialize()), status.HTTP_201_CREATED
     
-    ##----------------------------------------------------------------------------##
+######################################################################
+# Checks the ContentType of a request
+######################################################################
+def check_content_type(content_type) -> None:
+    """Checks that the media type is correct"""
+    if "Content-Type" not in request.headers:
+        app.logger.error("No Content-Type specified.")
+        abort(
+            status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            f"Content-Type must be {content_type}",
+        )
+
+    if request.headers["Content-Type"] == content_type:
+        return
+
+    app.logger.error("Invalid Content-Type: %s", request.headers["Content-Type"])
+    abort(
+        status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+        f"Content-Type must be {content_type}",
+    )
