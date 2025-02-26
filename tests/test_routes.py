@@ -19,6 +19,7 @@ TestPromotion API Service Test Suite
 """
 
 # pylint: disable=duplicate-code
+from datetime import date
 import os
 import logging
 from unittest import TestCase
@@ -87,7 +88,7 @@ class TestYourResourceService(TestCase):
         test_promotion = PromotionFactory()
         # Post to the promotions endpoint
         response = self.client.post(BASE_URL, json=test_promotion.serialize())
-        
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         new_promotion = response.get_json()
@@ -105,73 +106,43 @@ class TestYourResourceService(TestCase):
         # also needs to check the location header once GET route is created
 
     ##-------------------------------------------------------------------##
-
-    def test_name_validation_create_promotion(self):
-        """
-        Test case to validate that name can only be a str.
-        """
-        # Define the input payload for a valid promotion
-        payload = {
-            "name": 1, # int
-            "category": "PERCENTAGE_DISCOUNT_X",
-            "discount_x": 20, 
-            "discount_y": 0,
-            "product_id": 1,
-            "description": "20% off summer sale",
-            "validity": True,
-            "start_date": "2025-06-01",
-            "end_date": "2025-06-30"
-        }
-        # Post to the promotions endpoint
-        response = self.client.post(BASE_URL, json=payload)
-        #print(response)
-        self.assertEqual(response.status_code, 400)
-
-    ##-------------------------------------------------------------------##
     
     def test_discount_x_validation_create_promotion(self):
         """
         Test case to validate that discount_x can only be an int.
         """
-        # Define the input payload for a valid promotion
-        payload = {
-            "name": "Summer Sale",
-            "category": "PERCENTAGE_DISCOUNT_X",
-            "discount_x": "20", # string
-            "discount_y": 0,
-            "product_id": 1,
-            "description": "20% off summer sale",
-            "validity": True,
-            "start_date": "2025-06-01",
-            "end_date": "2025-06-30"
-        }
-        # Post to the promotions endpoint
-        response = self.client.post(BASE_URL, json=payload)
-        #print(response)
-        self.assertEqual(response.status_code, 400)
+        test_json = PromotionFactory().serialize()
+        test_json["discount_x"] = 1.1
+        response = self.client.post(BASE_URL, json=test_json)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        test_json = PromotionFactory().serialize()
+        del test_json["discount_x"]
+        response = self.client.post(BASE_URL, json=test_json)
+        self.assertEqual(response.get_json()["discount_x"], 0)
 
     ##-------------------------------------------------------------------##
     
     def test_discount_y_validation_create_promotion(self):
         """
-        Test case to validate that discount_y can only be an int.
+        Test case to validate that discount_y can only be an int or None.
         """
-        # Define the input payload for a valid promotion
-        payload = {
-            "name": "Summer Sale",
-            "category": "PERCENTAGE_DISCOUNT_X",
-            "discount_x": 20, 
-            "discount_y": "0", # str
-            "product_id": 1,
-            "description": "20% off summer sale",
-            "validity": True,
-            "start_date": "2025-06-01",
-            "end_date": "2025-06-30"
-        }
-        # Post to the promotions endpoint
-        response = self.client.post(BASE_URL, json=payload)
-        #print(response)
-        self.assertEqual(response.status_code, 400)
+        test_json = PromotionFactory().serialize()
+        test_json["discount_y"] = 1.1
+        response = self.client.post(BASE_URL, json=test_json)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        test_json = PromotionFactory().serialize()
+        test_json["discount_y"] = None
+        response = self.client.post(BASE_URL, json=test_json)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.get_json()["discount_y"], None)
+
+        test_json = PromotionFactory().serialize()
+        del test_json["discount_y"]
+        response = self.client.post(BASE_URL, json=test_json)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.get_json()["discount_y"], None)
 
     ##-------------------------------------------------------------------##
     
@@ -179,45 +150,15 @@ class TestYourResourceService(TestCase):
         """
         Test case to validate that product_id can only be an int.
         """
-        # Define the input payload for a valid promotion
-        payload = {
-            "name": "Summer Sale",
-            "category": "PERCENTAGE_DISCOUNT_X",
-            "discount_x": 20,
-            "discount_y": 0,
-            "product_id": "1", # str
-            "description": "20% off summer sale",
-            "validity": True,
-            "start_date": "2025-06-01",
-            "end_date": "2025-06-30"
-        }
-        # Post to the promotions endpoint
-        response = self.client.post(BASE_URL, json=payload)
-        #print(response)
-        self.assertEqual(response.status_code, 400)
+        test_json = PromotionFactory().serialize()
+        test_json["product_id"] = "123"
+        response = self.client.post(BASE_URL, json=test_json)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    ##-------------------------------------------------------------------##
-
-    def test_description_validation_create_promotion(self):
-        """
-        Test case to validate that description can only be a str.
-        """
-        # Define the input payload for a valid promotion
-        payload = {
-            "name": "Summer Sale",
-            "category": "PERCENTAGE_DISCOUNT_X",
-            "discount_x": 20, 
-            "discount_y": 0,
-            "product_id": 1,
-            "description": 1, # ibt
-            "validity": True,
-            "start_date": "2025-06-01",
-            "end_date": "2025-06-30"
-        }
-        # Post to the promotions endpoint
-        response = self.client.post(BASE_URL, json=payload)
-        #print(response)
-        self.assertEqual(response.status_code, 400)
+        test_json = PromotionFactory().serialize()
+        del test_json["product_id"]
+        response = self.client.post(BASE_URL, json=test_json)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     ##-------------------------------------------------------------------##
 
@@ -225,45 +166,26 @@ class TestYourResourceService(TestCase):
         """
         Test case to validate that validity can only be a bool.
         """
-        # Define the input payload for a valid promotion
-        payload = {
-            "name": "Summer Sale",
-            "category": "PERCENTAGE_DISCOUNT_X",
-            "discount_x": 20, 
-            "discount_y": 0,
-            "product_id": 1,
-            "description": "20% off summer sale",
-            "validity": "True", # str
-            "start_date": "2025-06-01",
-            "end_date": "2025-06-30"
-        }
-        # Post to the promotions endpoint
-        response = self.client.post(BASE_URL, json=payload)
-        #print(response)
-        self.assertEqual(response.status_code, 400)
+        test_json = PromotionFactory().serialize()
+        test_json["validity"] = 1
+        response = self.client.post(BASE_URL, json=test_json)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+        test_json = PromotionFactory().serialize()
+        del test_json["validity"]
+        response = self.client.post(BASE_URL, json=test_json)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.get_json()["validity"], False)
     ##-------------------------------------------------------------------##
 
     def test_missing_product_id_create_promotion(self):
         """
         Test case to check missing product_id.
         """
-        # Define the input payload for a valid promotion
-        payload = {
-            "name": "Summer Sale",
-            "category": "PERCENTAGE_DISCOUNT_X",
-            "discount_x": 20, 
-            "discount_y": 0,
-            #"product_id": 1,
-            "description": "20% off summer sale",
-            "validity": True,
-            "start_date": "2025-06-01",
-            "end_date": "2025-06-30"
-        }
-        # Post to the promotions endpoint
-        response = self.client.post(BASE_URL, json=payload)
-        #print(response)
-        self.assertEqual(response.status_code, 500)
+        test_json = PromotionFactory().serialize()
+        del test_json["product_id"]
+        response = self.client.post(BASE_URL, json=test_json)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     ##-------------------------------------------------------------------##
 
@@ -271,21 +193,43 @@ class TestYourResourceService(TestCase):
         """
         Test case to check missing product_description.
         """
-        # Define the input payload for a valid promotion
-        payload = {
-            "name": "Summer Sale",
-            "category": "PERCENTAGE_DISCOUNT_X",
-            "discount_x": 20, 
-            "discount_y": 0,
-            "product_id": 1,
-            #"description": "20% off summer sale",
-            "validity": True,
-            "start_date": "2025-06-01",
-            "end_date": "2025-06-30"
-        }
-        # Post to the promotions endpoint
-        response = self.client.post(BASE_URL, json=payload)
-        #print(response)
-        self.assertEqual(response.status_code, 500)
+        test_json = PromotionFactory().serialize()
+        del test_json["description"]
+        response = self.client.post(BASE_URL, json=test_json)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     
     ##-------------------------------------------------------------------##
+
+    def test_date_create_promotion(self):
+        """
+        Test case to check invalid start_date and end_date
+        """
+        test_json = PromotionFactory().serialize()
+        test_json["start_date"] = "some date"
+        response = self.client.post(BASE_URL, json=test_json)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        test_json = PromotionFactory().serialize()
+        test_json["end_date"] = "some date"
+        response = self.client.post(BASE_URL, json=test_json)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        test_json = PromotionFactory().serialize()
+        test_json["start_date"] = "2025-02-01"
+        test_json["end_date"] = "2025-01-01"
+        response = self.client.post(BASE_URL, json=test_json)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        test_json = PromotionFactory().serialize()
+        del test_json["start_date"]
+        del test_json["end_date"]
+        response = self.client.post(BASE_URL, json=test_json)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.get_json()["start_date"], date.today().isoformat())
+        self.assertEqual(response.get_json()["end_date"], date.today().isoformat())
+
+        test_json = PromotionFactory().serialize()
+        del test_json["start_date"]
+        test_json["end_date"] = "2025-01-01"
+        response = self.client.post(BASE_URL, json=test_json)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
