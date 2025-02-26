@@ -47,8 +47,8 @@ def index():
 
 ##----------------------------------------------------------------------------##
 
-@app.route("/api/v1/createPromotion", methods=["POST"])
-def create_promotion():
+@app.route("/promotions", methods=["POST"])
+def create_promotions():
     """
     POST API to create a new promotion.
     Product ID and Promotion Description have to be present, the rest of them have default values.

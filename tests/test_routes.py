@@ -27,11 +27,13 @@ import sys
 sys.path.append('..')
 from wsgi import app
 from service.common import status
-from service.models import db, Promotion
+from service.models import db, Promotion, Category
+from tests.factories import PromotionFactory
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
 )
+BASE_URL = "/promotions"
 
 
 ######################################################################
@@ -82,21 +84,25 @@ class TestYourResourceService(TestCase):
         Test case to create new promotion.
         """
         # Define the input payload for a valid promotion
-        payload = {
-            "name": "Summer Sale",
-            "category": "PERCENTAGE_DISCOUNT_X",
-            "discount_x": 20,
-            "discount_y": 0,
-            "product_id": 1,
-            "description": "20% off summer sale",
-            "validity": True,
-            "start_date": "2025-06-01",
-            "end_date": "2025-06-30"
-        }
+        test_promotion = PromotionFactory()
         # Post to the promotions endpoint
-        response = self.client.post("/api/v1/createPromotion", json=payload)
-        #print(response)
-        self.assertEqual(response.status_code, 200)
+        response = self.client.post(BASE_URL, json=test_promotion.serialize())
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        new_promotion = response.get_json()
+        self.assertEqual(new_promotion["name"], test_promotion.name)
+        self.assertEqual(new_promotion["category"], test_promotion.category.name)
+        self.assertEqual(new_promotion["discount_x"], test_promotion.discount_x)
+        self.assertEqual(new_promotion["discount_y"], test_promotion.discount_y)
+        self.assertEqual(new_promotion["product_id"], test_promotion.product_id)
+        self.assertEqual(new_promotion["description"], test_promotion.description)
+        self.assertEqual(new_promotion["validity"], test_promotion.validity)
+        self.assertEqual(new_promotion["start_date"], test_promotion.start_date.isoformat())
+        self.assertEqual(new_promotion["end_date"], test_promotion.end_date.isoformat())
+
+        # TO BE DONE
+        # also needs to check the location header once GET route is created
 
     ##-------------------------------------------------------------------##
 
@@ -117,7 +123,7 @@ class TestYourResourceService(TestCase):
             "end_date": "2025-06-30"
         }
         # Post to the promotions endpoint
-        response = self.client.post("/api/v1/createPromotion", json=payload)
+        response = self.client.post(BASE_URL, json=payload)
         #print(response)
         self.assertEqual(response.status_code, 400)
 
@@ -140,7 +146,7 @@ class TestYourResourceService(TestCase):
             "end_date": "2025-06-30"
         }
         # Post to the promotions endpoint
-        response = self.client.post("/api/v1/createPromotion", json=payload)
+        response = self.client.post(BASE_URL, json=payload)
         #print(response)
         self.assertEqual(response.status_code, 400)
 
@@ -163,7 +169,7 @@ class TestYourResourceService(TestCase):
             "end_date": "2025-06-30"
         }
         # Post to the promotions endpoint
-        response = self.client.post("/api/v1/createPromotion", json=payload)
+        response = self.client.post(BASE_URL, json=payload)
         #print(response)
         self.assertEqual(response.status_code, 400)
 
@@ -186,7 +192,7 @@ class TestYourResourceService(TestCase):
             "end_date": "2025-06-30"
         }
         # Post to the promotions endpoint
-        response = self.client.post("/api/v1/createPromotion", json=payload)
+        response = self.client.post(BASE_URL, json=payload)
         #print(response)
         self.assertEqual(response.status_code, 400)
 
@@ -209,7 +215,7 @@ class TestYourResourceService(TestCase):
             "end_date": "2025-06-30"
         }
         # Post to the promotions endpoint
-        response = self.client.post("/api/v1/createPromotion", json=payload)
+        response = self.client.post(BASE_URL, json=payload)
         #print(response)
         self.assertEqual(response.status_code, 400)
 
@@ -232,7 +238,7 @@ class TestYourResourceService(TestCase):
             "end_date": "2025-06-30"
         }
         # Post to the promotions endpoint
-        response = self.client.post("/api/v1/createPromotion", json=payload)
+        response = self.client.post(BASE_URL, json=payload)
         #print(response)
         self.assertEqual(response.status_code, 400)
 
@@ -255,7 +261,7 @@ class TestYourResourceService(TestCase):
             "end_date": "2025-06-30"
         }
         # Post to the promotions endpoint
-        response = self.client.post("/api/v1/createPromotion", json=payload)
+        response = self.client.post(BASE_URL, json=payload)
         #print(response)
         self.assertEqual(response.status_code, 500)
 
@@ -278,12 +284,8 @@ class TestYourResourceService(TestCase):
             "end_date": "2025-06-30"
         }
         # Post to the promotions endpoint
-        response = self.client.post("/api/v1/createPromotion", json=payload)
+        response = self.client.post(BASE_URL, json=payload)
         #print(response)
         self.assertEqual(response.status_code, 500)
     
     ##-------------------------------------------------------------------##
-
-
-if __name__ == '__main__':
-    unittest.main()
