@@ -23,9 +23,11 @@ and Delete Promotion
 
 from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
-from service.models import Promotion
+from service.models import Promotion, Category
 from service.common import status  # HTTP Status Codes
-
+from flask import Blueprint, request, jsonify
+from service.models import Promotion, DataValidationError
+from datetime import datetime, date
 
 ######################################################################
 # GET INDEX
@@ -43,4 +45,45 @@ def index():
 #  R E S T   A P I   E N D P O I N T S
 ######################################################################
 
-# Todo: Place your REST API code here ...
+##----------------------------------------------------------------------------##
+
+@app.route("/promotions", methods=["POST"])
+def create_promotions():
+    """
+    POST API to create a new promotion.
+    Product ID and Promotion Description have to be present, the rest of them have default values.
+    """
+    app.logger.info("Request to Create a Promotion...")
+    check_content_type("application/json")
+
+    promotion = Promotion()
+    data = request.get_json()
+    app.logger.info("Processing: %s", data)
+    promotion.deserialize(data)
+        
+    promotion.create()
+    app.logger.info("Promotion with new id [%s] saved", promotion.id)
+
+    # TO BE DONE: also return the location of the newly created promotion once GET promotion is created
+    return jsonify(promotion.serialize()), status.HTTP_201_CREATED
+    
+######################################################################
+# Checks the ContentType of a request
+######################################################################
+def check_content_type(content_type) -> None:
+    """Checks that the media type is correct"""
+    if "Content-Type" not in request.headers:
+        app.logger.error("No Content-Type specified.")
+        abort(
+            status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            f"Content-Type must be {content_type}",
+        )
+
+    if request.headers["Content-Type"] == content_type:
+        return
+
+    app.logger.error("Invalid Content-Type: %s", request.headers["Content-Type"])
+    abort(
+        status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+        f"Content-Type must be {content_type}",
+    )

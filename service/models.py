@@ -125,14 +125,70 @@ class Promotion(db.Model):
         """
         try:
             self.name = data["name"]
-            self.category = Category[data["category"].upper()]
-            self.discount_x = data["discount_x"]
-            self.discount_y = data["discount_y"]
-            self.product_id = data["product_id"]
+
+            if "category" in data:
+                self.category = Category[data["category"].upper()]
+
+            if "discount_x" in data:
+                if isinstance(data["discount_x"], int):
+                    self.discount_x = data["discount_x"]
+                else:
+                    raise DataValidationError(
+                        "Invalid type for int [discount_x]: "
+                        + str(type(data["discount_x"]))
+                    )
+                
+            if "discount_y" in data:
+                if isinstance(data["discount_y"], int) or data["discount_y"] == None:
+                    self.discount_y = data["discount_y"]
+                else:
+                    raise DataValidationError(
+                        "Invalid type for int [discount_y]: "
+                        + str(type(data["discount_y"]))
+                    )
+                
+            if isinstance(data["product_id"], int):
+                self.product_id = data["product_id"]
+            else:
+                raise DataValidationError(
+                    "Invalid type for int [product_id]: "
+                    + str(type(data["product_id"]))
+                )
+            
             self.description = data["description"]
-            self.validity = data["validity"]
-            self.start_date = date.fromisoformat(data["start_date"])
-            self.end_date = date.fromisoformat(data["end_date"])
+
+            if "validity" in data:
+                if isinstance(data["validity"], bool):
+                    self.validity = data["validity"]
+                else:
+                    raise DataValidationError(
+                        "Invalid type for bool [validity]: "
+                        + str(type(data["validity"]))
+                    )
+                
+            if "start_date" in data:
+                if isinstance(data["start_date"], str):
+                    self.start_date = date.fromisoformat(data["start_date"])
+                else:
+                    raise DataValidationError(
+                        "Invalid type for string [start_date]: "
+                        + str(type(data["start_date"]))
+                    )
+                
+            if "end_date" in data:
+                if isinstance(data["end_date"], str):
+                    end_date = date.fromisoformat(data["end_date"])
+                    if end_date >= self.start_date:
+                        self.end_date = end_date
+                    else:
+                        raise DataValidationError(
+                            "Invalid end date before start date"
+                        )
+                else:
+                    raise DataValidationError(
+                        "Invalid type for string [end_date]: "
+                        + str(type(data["end_date"]))
+                    )
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0]) from error
         except KeyError as error:
@@ -144,6 +200,10 @@ class Promotion(db.Model):
                 "Invalid Promotion: body of request contained bad or no data "
                 + str(error)
             ) from error
+        except ValueError as error:
+            raise DataValidationError(
+                str(error)
+            )
         return self
 
     ##################################################
