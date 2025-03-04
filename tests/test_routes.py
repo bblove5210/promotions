@@ -125,8 +125,22 @@ class TestYourResourceService(TestCase):
         self.assertEqual(new_promotion["start_date"], test_promotion.start_date.isoformat())
         self.assertEqual(new_promotion["end_date"], test_promotion.end_date.isoformat())
 
-        # TO BE DONE
-        # also needs to check the location header once GET route is created
+        # check that the location header is correct
+        location = response.headers.get("location", None)
+        self.assertIsNotNone(location)
+
+        response = self.client.get(location)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        new_promotion = response.get_json()
+        self.assertEqual(new_promotion["name"], test_promotion.name)
+        self.assertEqual(new_promotion["category"], test_promotion.category.name)
+        self.assertEqual(new_promotion["discount_x"], test_promotion.discount_x)
+        self.assertEqual(new_promotion["discount_y"], test_promotion.discount_y)
+        self.assertEqual(new_promotion["product_id"], test_promotion.product_id)
+        self.assertEqual(new_promotion["description"], test_promotion.description)
+        self.assertEqual(new_promotion["validity"], test_promotion.validity)
+        self.assertEqual(new_promotion["start_date"], test_promotion.start_date.isoformat())
+        self.assertEqual(new_promotion["end_date"], test_promotion.end_date.isoformat())
 
     ##-------------------------------------------------------------------##
     
