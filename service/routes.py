@@ -69,6 +69,24 @@ def create_promotions():
     promotion.create()
     app.logger.info("Promotion with new id [%s] saved", promotion.id)
 
+    location_url = url_for("get_promotions", promotion_id=promotion.id, _external=True)
+    return jsonify(promotion.serialize()), status.HTTP_201_CREATED, {"Location": location_url}
+
+# ----------------------
+#    READ A PROMOTION 
+# ----------------------
+@app.route("/promotions/<int:promotion_id>", methods=["GET"])
+def get_promotions(promotion_id):
+    app.logger.info("Request to Retrieve a promotion with id [%s]", promotion_id)
+
+    # Attempt to find the promotion and abort if not found
+    promotion = Promotion.find(promotion_id)
+    if not promotion:
+        abort(status.HTTP_404_NOT_FOUND, f"promotion with id '{promotion_id}' was not found.")
+
+    app.logger.info("Returning promotion: %s", promotion.name)
+    return jsonify(promotion.serialize()), status.HTTP_200_OK
+
     # TO BE DONE: also return the location of the newly created promotion once GET promotion is created
     return jsonify(promotion.serialize()), status.HTTP_201_CREATED
 
@@ -98,6 +116,7 @@ def update_promotions(promotion_id):
 
     app.logger.info("promotion with ID: %d updated.", promotion.id)
     return jsonify(promotion.serialize()), status.HTTP_200_OK
+
 
     
 ######################################################################
