@@ -89,7 +89,7 @@ pip install -r requirements.txt
 flask run
 ```
 
-5. Access the API at http://127.0.0.1:5000.
+5. Access the API at http://127.0.0.1:8080.
 
 
 ## Running Tests
