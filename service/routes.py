@@ -66,6 +66,33 @@ def create_promotions():
 
     # TO BE DONE: also return the location of the newly created promotion once GET promotion is created
     return jsonify(promotion.serialize()), status.HTTP_201_CREATED
+
+
+@app.route("/promotions/<int:promotion_id>", methods=["PUT"])
+def update_promotions(promotion_id):
+    """
+    Update a promotion
+
+    This endpoint will update a promotion based the body that is posted
+    """
+    app.logger.info("Request to Update a promotion with id [%s]", promotion_id)
+    check_content_type("application/json")
+
+    # Attempt to find the promotion and abort if not found
+    promotion = Promotion.find(promotion_id)
+    if not promotion:
+        abort(status.HTTP_404_NOT_FOUND, f"promotion with id '{promotion_id}' was not found.")
+
+    # Update the promotion with the new data
+    data = request.get_json()
+    app.logger.info("Processing: %s", data)
+    promotion.deserialize(data)
+
+    # Save the updates to the database
+    promotion.update()
+
+    app.logger.info("promotion with ID: %d updated.", promotion.id)
+    return jsonify(promotion.serialize()), status.HTTP_200_OK
     
 ######################################################################
 # Checks the ContentType of a request

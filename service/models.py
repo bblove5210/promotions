@@ -82,6 +82,8 @@ class Promotion(db.Model):
         """
         Updates a Promotion to the database
         """
+        if self.id is None:
+            raise DataValidationError("Promotion must have an ID before updating")
         logger.info("Saving %s", self.name)
         try:
             db.session.commit()

@@ -233,3 +233,21 @@ class TestYourResourceService(TestCase):
         test_json["end_date"] = "2025-01-01"
         response = self.client.post(BASE_URL, json=test_json)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_promotion(self):
+        """It should Update an existing promotion"""
+        # create a promotion to update
+        test_promotion = PromotionFactory()
+        response = self.client.post(BASE_URL, json=test_promotion.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # update the promotion
+        new_promotion = response.get_json()
+        logging.debug(new_promotion)
+        new_promotion["name"] = "promo1"
+        promotion_id = new_promotion["id"]
+        response = self.client.put(f"{BASE_URL}/{promotion_id}", json=new_promotion)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        updated_promotion = response.get_json()
+        self.assertEqual(updated_promotion["name"], "promo1")
