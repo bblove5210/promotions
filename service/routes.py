@@ -149,3 +149,22 @@ def check_content_type(content_type) -> None:
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         f"Content-Type must be {content_type}",
     )
+
+######################################################################
+# Delete a Promotion
+######################################################################
+@app.route("/promotions/<int:promotion_id>", methods=["DELETE"])
+def delete_promotions(promotion_id):
+    """
+    Delete a Promotion
+
+    This endpoint will delete a Promotion based the id specified in the path
+    """
+    app.logger.info("Request to Delete a promotion with id [%s]", promotion_id)
+    promotion = Promotion()
+    promotion = Promotion.find(promotion_id)
+
+    if promotion:
+        promotion.delete()
+
+    return {}, status.HTTP_204_NO_CONTENT
