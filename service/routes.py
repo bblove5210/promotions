@@ -21,7 +21,7 @@ This service implements a REST API that allows you to Create, Read, Update
 and Delete Promotion
 """
 
-from flask import jsonify, request, url_for, make_response, abort
+from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
 from service.models import Promotion, Category
 from service.common import status  # HTTP Status Codes
@@ -120,4 +120,4 @@ def delete_promotions(promotion_id):
     if promotion:
         promotion.delete()
 
-    return make_response("", status.HTTP_204_NO_CONTENT)
+    return {}, status.HTTP_204_NO_CONTENT
