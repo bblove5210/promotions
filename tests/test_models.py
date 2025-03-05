@@ -91,3 +91,14 @@ class TestPromotion(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(data["name"], "Promotion REST API Service")
+
+    def test_list_all(self):
+        """It should list all Promotion"""
+        promotions = Promotion.all()
+        self.assertEqual(promotions, [])
+
+        for _ in range(5):
+            PromotionFactory().create()
+
+        promotions = Promotion.all()
+        self.assertEqual(len(promotions), 5)
