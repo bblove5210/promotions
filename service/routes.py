@@ -23,11 +23,8 @@ and Delete Promotion
 
 from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
-from service.models import Promotion, Category
+from service.models import Promotion
 from service.common import status  # HTTP Status Codes
-from flask import Blueprint, request, jsonify
-from service.models import Promotion, DataValidationError
-from datetime import datetime, date
 
 ######################################################################
 # GET INDEX
@@ -71,10 +68,15 @@ def create_promotions():
     app.logger.info("Promotion with new id [%s] saved", promotion.id)
 
     location_url = url_for("get_promotions", promotion_id=promotion.id, _external=True)
-    return jsonify(promotion.serialize()), status.HTTP_201_CREATED, {"Location": location_url}
+    return (
+        jsonify(promotion.serialize()),
+        status.HTTP_201_CREATED,
+        {"Location": location_url},
+    )
+
 
 # ----------------------
-#    READ A PROMOTION 
+#    READ A PROMOTION
 # ----------------------
 @app.route("/promotions/<int:promotion_id>", methods=["GET"])
 def get_promotions(promotion_id):
@@ -83,10 +85,14 @@ def get_promotions(promotion_id):
     # Attempt to find the promotion and abort if not found
     promotion = Promotion.find(promotion_id)
     if not promotion:
-        abort(status.HTTP_404_NOT_FOUND, f"promotion with id '{promotion_id}' was not found.")
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"promotion with id '{promotion_id}' was not found.",
+        )
 
     app.logger.info("Returning promotion: %s", promotion.name)
     return jsonify(promotion.serialize()), status.HTTP_200_OK
+
 
 @app.route("/promotions", methods=["GET"])
 def list_promotions():
@@ -99,6 +105,7 @@ def list_promotions():
     promotion_list = [promo.serialize() for promo in all_promotions]
 
     return jsonify(promotion_list), status.HTTP_200_OK
+
 
 @app.route("/promotions/<int:promotion_id>", methods=["PUT"])
 def update_promotions(promotion_id):
@@ -113,7 +120,10 @@ def update_promotions(promotion_id):
     # Attempt to find the promotion and abort if not found
     promotion = Promotion.find(promotion_id)
     if not promotion:
-        abort(status.HTTP_404_NOT_FOUND, f"promotion with id '{promotion_id}' was not found.")
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"promotion with id '{promotion_id}' was not found.",
+        )
 
     # Update the promotion with the new data
     data = request.get_json()
@@ -149,6 +159,7 @@ def check_content_type(content_type) -> None:
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         f"Content-Type must be {content_type}",
     )
+
 
 ######################################################################
 # Delete a Promotion

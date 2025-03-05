@@ -23,13 +23,10 @@ from datetime import date
 import os
 import logging
 from unittest import TestCase
-import unittest
-import json
-import sys
 import random
 from wsgi import app
 from service.common import status
-from service.models import db, Promotion, Category
+from service.models import db, Promotion
 from tests.factories import PromotionFactory
 
 DATABASE_URI = os.getenv(
@@ -102,8 +99,6 @@ class TestYourResourceService(TestCase):
         resp = self.client.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-    ##-------------------------------------------------------------------##
-
     def test_create_promotion_success(self):
         """
         Test case to create new promotion.
@@ -147,8 +142,6 @@ class TestYourResourceService(TestCase):
         )
         self.assertEqual(new_promotion["end_date"], test_promotion.end_date.isoformat())
 
-    ##-------------------------------------------------------------------##
-
     def test_discount_x_validation_create_promotion(self):
         """
         Test case to validate that discount_x can only be an int.
@@ -162,8 +155,6 @@ class TestYourResourceService(TestCase):
         del test_json["discount_x"]
         response = self.client.post(BASE_URL, json=test_json)
         self.assertEqual(response.get_json()["discount_x"], 0)
-
-    ##-------------------------------------------------------------------##
 
     def test_discount_y_validation_create_promotion(self):
         """
@@ -186,8 +177,6 @@ class TestYourResourceService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.get_json()["discount_y"], None)
 
-    ##-------------------------------------------------------------------##
-
     def test_product_id_validation_create_promotion(self):
         """
         Test case to validate that product_id can only be an int.
@@ -201,8 +190,6 @@ class TestYourResourceService(TestCase):
         del test_json["product_id"]
         response = self.client.post(BASE_URL, json=test_json)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    ##-------------------------------------------------------------------##
 
     def test_validity_validation_create_promotion(self):
         """
@@ -219,8 +206,6 @@ class TestYourResourceService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.get_json()["validity"], False)
 
-    ##-------------------------------------------------------------------##
-
     def test_missing_product_id_create_promotion(self):
         """
         Test case to check missing product_id.
@@ -230,8 +215,6 @@ class TestYourResourceService(TestCase):
         response = self.client.post(BASE_URL, json=test_json)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    ##-------------------------------------------------------------------##
-
     def test_missing_product_description_create_promotion(self):
         """
         Test case to check missing product_description.
@@ -240,8 +223,6 @@ class TestYourResourceService(TestCase):
         del test_json["description"]
         response = self.client.post(BASE_URL, json=test_json)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    ##-------------------------------------------------------------------##
 
     def test_date_create_promotion(self):
         """

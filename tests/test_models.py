@@ -85,7 +85,6 @@ class TestPromotion(TestCase):
         self.assertEqual(data.start_date, promotion.start_date)
         self.assertEqual(data.end_date, promotion.end_date)
 
-
     def test_update_promotion(self):
         """It should Update a promotion"""
         promotion = PromotionFactory()
@@ -99,7 +98,7 @@ class TestPromotion(TestCase):
         promotion.update()
         self.assertEqual(promotion.id, original_id)
         self.assertEqual(promotion.name, "prom1")
-        
+
         # Fetch it back and make sure the id hasn't changed
         # but the data did change
         updated_promo = Promotion.find(original_id)
@@ -144,12 +143,9 @@ class TestPromotion(TestCase):
         promotions = Promotion.all()
         self.assertEqual(len(promotions), 5)
 
-
     def test_index(self):
         """It should call the Home Page"""
         response = self.client.get("/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(data["name"], "Promotion REST API Service")
-
-    
