@@ -35,9 +35,14 @@ from datetime import datetime, date
 @app.route("/")
 def index():
     """Root URL response"""
+    app.logger.info("Request for Root URL")
     return (
-        "Reminder: return some useful information in json format about the service here",
-        status.HTTP_200_OK,
+        jsonify(
+            name="Promotion REST API Service",
+            version="1.0",
+            paths=url_for("list_promotions", _external=True)
+        ),
+        status.HTTP_200_OK
     )
 
 
@@ -81,6 +86,15 @@ def get_promotions(promotion_id):
 
     app.logger.info("Returning promotion: %s", promotion.name)
     return jsonify(promotion.serialize()), status.HTTP_200_OK
+
+    # TO BE DONE: also return the location of the newly created promotion once GET promotion is created
+    return jsonify(promotion.serialize()), status.HTTP_201_CREATED
+
+@app.route("/promotions", methods=["GET"])
+def list_promotions():
+    """Return all the promotions"""
+    # To be done
+
     
 ######################################################################
 # Checks the ContentType of a request
