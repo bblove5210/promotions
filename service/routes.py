@@ -74,21 +74,17 @@ def create_promotions():
     return jsonify(promotion.serialize()), status.HTTP_201_CREATED
 
 
-@app.route("/listPromotions", methods=["GET"])
+@app.route("/promotions", methods=["GET"])
 def list_promotions():
     """
     GET API to list all promotions.
     """
     app.logger.info("Request to List all Promotions...")
-    check_content_type("application/json")
 
-    promotion = Promotion()
+    all_promotions = Promotion.all()
+    promotion_list = [promo.serialize() for promo in all_promotions]
 
-    all_promotions = promotion.all()
-    promotion_list = [promo.serialize() for promo in all_promotions] 
-    app.logger.info("Promotion with new id [%s] saved", promotion.id)
-
-    return jsonify({"all_promotions": promotion_list}), status.HTTP_201_CREATED
+    return jsonify(promotion_list), status.HTTP_200_OK
 
 
 ######################################################################
