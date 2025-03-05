@@ -133,6 +133,17 @@ class TestPromotion(TestCase):
         self.assertEqual(found_promotion.start_date, promotion.start_date)
         self.assertEqual(found_promotion.end_date, promotion.end_date)
 
+    def test_list_all(self):
+        """It should list all Promotion"""
+        promotions = Promotion.all()
+        self.assertEqual(promotions, [])
+
+        for _ in range(5):
+            PromotionFactory().create()
+
+        promotions = Promotion.all()
+        self.assertEqual(len(promotions), 5)
+
 
     def test_index(self):
         """It should call the Home Page"""
