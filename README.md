@@ -1,64 +1,105 @@
-# NYU DevOps Project Template
+# NYU DevOps Promotions Service
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/Language-Python-blue.svg)](https://python.org/)
 
-This is a skeleton you can use to start your projects.
-
-**Note:** _Feel free to overwrite this `README.md` file with the one that describes your project._
 
 ## Overview
 
-This project template contains starter code for your class project. The `/service` folder contains your `models.py` file for your model and a `routes.py` file for your service. The `/tests` folder has test case starter code for testing the model and the service separately. All you need to do is add your functionality. You can use the [lab-flask-tdd](https://github.com/nyu-devops/lab-flask-tdd) for code examples to copy from.
+The Promotions Service is designed to manage promotional campaigns within a microservices architecture. It provides a RESTful API to create, update, retrieve, and delete promotions for an e-commerce platform. The service is built using Flask and follows best DevOps practices, including automated testing, CI/CD, and containerization.
+The Promotions Squad handles deals on products (Eg: 20 % discount, buy 1 get 1 etc.)
 
-## Automatic Setup
+## Features Implemented
 
-The best way to use this repo is to start your own repo using it as a git template. To do this just press the green **Use this template** button in GitHub and this will become the source for your repository.
+- Create new promotions
 
-## Manual Setup
+- Retrieve existing promotions
 
-You can also clone this repository and then copy and paste the starter code into your project repo folder on your local computer. Be careful not to copy over your own `README.md` file so be selective in what you copy.
+- Update promotion details
 
-There are 4 hidden files that you will need to copy manually if you use the Mac Finder or Windows Explorer to copy files from this folder into your repo folder.
+- Delete promotions
 
-These should be copied using a bash shell as follows:
+- Service health check endpoint
 
-```bash
-    cp .gitignore  ../<your_repo_folder>/
-    cp .flaskenv ../<your_repo_folder>/
-    cp .gitattributes ../<your_repo_folder>/
-```
+- Unit tests for models and routes
 
-## Contents
+
+## Project Structure
 
 The project contains the following:
 
-```text
-.gitignore          - this will ignore vagrant and other metadata files
-.flaskenv           - Environment variables to configure Flask
-.gitattributes      - File to gix Windows CRLF issues
-.devcontainers/     - Folder with support for VSCode Remote Containers
-dot-env-example     - copy to .env to use environment variables
-pyproject.toml      - Poetry list of Python libraries required by your code
-
-service/                   - service python package
-├── __init__.py            - package initializer
-├── config.py              - configuration parameters
-├── models.py              - module with business models
-├── routes.py              - module with service routes
-└── common                 - common code package
-    ├── cli_commands.py    - Flask command to recreate all tables
-    ├── error_handlers.py  - HTTP error handling code
-    ├── log_handlers.py    - logging setup code
-    └── status.py          - HTTP status constants
-
-tests/                     - test cases package
-├── __init__.py            - package initializer
-├── factories.py           - Factory for testing with fake objects
-├── test_cli_commands.py   - test suite for the CLI
-├── test_models.py         - test suite for business models
-└── test_routes.py         - test suite for service routes
+```/promotions-service
+├── service/                   # Service Python package
+│   ├── __init__.py            # Package initializer
+│   ├── config.py              # Configuration parameters
+│   ├── models.py              # Business models for promotions
+│   ├── routes.py              # Service API endpoints
+│   ├── common/                # Common utilities
+│   │   ├── cli_commands.py    # Flask CLI commands
+│   │   ├── error_handlers.py  # HTTP error handling
+│   │   ├── log_handlers.py    # Logging setup
+│   │   ├── status.py          # HTTP status constants
+│   └── static/                # Static assets (if needed)
+│
+├── tests/                     # Test cases package
+│   ├── __init__.py            # Package initializer
+│   ├── factories.py           # Factory for fake test objects
+│   ├── test_models.py         # Unit tests for models
+│   ├── test_routes.py         # Unit tests for API endpoints
+│   ├── test_cli_commands.py   # Tests for CLI commands
+│
+├── .flaskenv                  # Flask environment variables
+├── .gitignore                 # Git ignore settings
+├── .gitattributes             # Git attributes settings
+├── pyproject.toml             # Python dependencies (Poetry)
+├── dot-env-example            # Example environment variable configuration
+├── Procfile                   # Deployment process file
+├── LICENSE                    # License file
+└── README.md                  # Project documentation
 ```
+
+## Running the Service
+
+To run the service locally, follow these steps:
+
+1. Clone the repository:
+
+```
+git clone
+cd promotions
+```
+
+2. Create and activate a virtual environment:
+
+```
+python3 -m venv venv
+source venv/bin/activate  # On macOS/Linux
+venv\Scripts\activate     # On Windows
+```
+
+3. Install dependencies:
+
+```
+pip install -r requirements.txt
+```
+
+4. Run the Flask service:
+
+```
+flask run
+```
+
+5. Access the API at http://127.0.0.1:5000.
+
+
+## Running Tests
+
+To ensure code quality, run unit tests using:
+
+```
+pytest tests/
+```
+
 
 ## License
 
