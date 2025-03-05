@@ -32,6 +32,8 @@ from datetime import datetime, date
 ######################################################################
 # GET INDEX
 ######################################################################
+
+
 @app.route("/")
 def index():
     """Root URL response"""
@@ -40,9 +42,9 @@ def index():
         jsonify(
             name="Promotion REST API Service",
             version="1.0",
-            paths=url_for("list_promotions", _external=True)
+            paths=url_for("list_promotions", _external=True),
         ),
-        status.HTTP_200_OK
+        status.HTTP_200_OK,
     )
 
 
@@ -50,7 +52,6 @@ def index():
 #  R E S T   A P I   E N D P O I N T S
 ######################################################################
 
-##----------------------------------------------------------------------------##
 
 @app.route("/promotions", methods=["POST"])
 def create_promotions():
@@ -65,7 +66,7 @@ def create_promotions():
     data = request.get_json()
     app.logger.info("Processing: %s", data)
     promotion.deserialize(data)
-        
+
     promotion.create()
     app.logger.info("Promotion with new id [%s] saved", promotion.id)
 
@@ -90,6 +91,17 @@ def get_promotions(promotion_id):
     # TO BE DONE: also return the location of the newly created promotion once GET promotion is created
     return jsonify(promotion.serialize()), status.HTTP_201_CREATED
 
+@app.route("/promotions", methods=["GET"])
+def list_promotions():
+    """
+    GET API to list all promotions.
+    """
+    app.logger.info("Request to List all Promotions...")
+
+    all_promotions = Promotion.all()
+    promotion_list = [promo.serialize() for promo in all_promotions]
+
+    return jsonify(promotion_list), status.HTTP_200_OK
 
 @app.route("/promotions/<int:promotion_id>", methods=["PUT"])
 def update_promotions(promotion_id):
@@ -130,10 +142,13 @@ def list_promotions():
     return jsonify(promotion_list), status.HTTP_200_OK
 
 
-    
-######################################################################
+
+
+#####################################################################
 # Checks the ContentType of a request
 ######################################################################
+
+
 def check_content_type(content_type) -> None:
     """Checks that the media type is correct"""
     if "Content-Type" not in request.headers:

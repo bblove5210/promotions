@@ -23,10 +23,10 @@ from datetime import date
 import os
 import logging
 from unittest import TestCase
+import unittest
 import json
 import sys
 import random
-sys.path.append('..')
 from wsgi import app
 from service.common import status
 from service.models import db, Promotion, Category
@@ -122,7 +122,9 @@ class TestYourResourceService(TestCase):
         self.assertEqual(new_promotion["product_id"], test_promotion.product_id)
         self.assertEqual(new_promotion["description"], test_promotion.description)
         self.assertEqual(new_promotion["validity"], test_promotion.validity)
-        self.assertEqual(new_promotion["start_date"], test_promotion.start_date.isoformat())
+        self.assertEqual(
+            new_promotion["start_date"], test_promotion.start_date.isoformat()
+        )
         self.assertEqual(new_promotion["end_date"], test_promotion.end_date.isoformat())
 
         # check that the location header is correct
@@ -143,7 +145,7 @@ class TestYourResourceService(TestCase):
         self.assertEqual(new_promotion["end_date"], test_promotion.end_date.isoformat())
 
     ##-------------------------------------------------------------------##
-    
+
     def test_discount_x_validation_create_promotion(self):
         """
         Test case to validate that discount_x can only be an int.
@@ -159,7 +161,7 @@ class TestYourResourceService(TestCase):
         self.assertEqual(response.get_json()["discount_x"], 0)
 
     ##-------------------------------------------------------------------##
-    
+
     def test_discount_y_validation_create_promotion(self):
         """
         Test case to validate that discount_y can only be an int or None.
@@ -182,7 +184,7 @@ class TestYourResourceService(TestCase):
         self.assertEqual(response.get_json()["discount_y"], None)
 
     ##-------------------------------------------------------------------##
-    
+
     def test_product_id_validation_create_promotion(self):
         """
         Test case to validate that product_id can only be an int.
@@ -213,6 +215,7 @@ class TestYourResourceService(TestCase):
         response = self.client.post(BASE_URL, json=test_json)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.get_json()["validity"], False)
+
     ##-------------------------------------------------------------------##
 
     def test_missing_product_id_create_promotion(self):
@@ -234,7 +237,7 @@ class TestYourResourceService(TestCase):
         del test_json["description"]
         response = self.client.post(BASE_URL, json=test_json)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    
+
     ##-------------------------------------------------------------------##
 
     def test_date_create_promotion(self):
@@ -271,6 +274,33 @@ class TestYourResourceService(TestCase):
         response = self.client.post(BASE_URL, json=test_json)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_list_promotions_empty(self):
+        """
+        Test listing promotions when no promotions exist.
+        """
+        # Set the content type header as expected by check_content_type
+        response = self.client.get(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        list_data = response.get_json()
+        # Expect an empty list if no promotions exist in the database
+        self.assertEqual(len(list_data), 0)
+
+    def test_list_promotions_with_data(self):
+        """
+        Test listing promotions after creating one promotion.
+        """
+        payload_list = [PromotionFactory().serialize() for _ in range(50)]
+        headers = {"Content-Type": "application/json"}
+        for payload in payload_list:
+            create_response = self.client.post(
+                "/promotions", json=payload, headers=headers
+            )
+            self.assertEqual(create_response.status_code, 201)
+
+        list_response = self.client.get(BASE_URL)
+        self.assertEqual(list_response.status_code, status.HTTP_200_OK)
+        list_data = list_response.get_json()
+        self.assertEqual(len(list_data), 50)
 
     def test_update_promotion(self):
         """It should Update an existing promotion"""
@@ -334,6 +364,7 @@ class TestYourResourceService(TestCase):
         response = self.client.get(f"{BASE_URL}/{error_id}", json=promotion.serialize())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+
     def test_list_promotions_empty(self):
         """
         Test listing promotions when no promotions exist.
@@ -361,3 +392,4 @@ class TestYourResourceService(TestCase):
         self.assertEqual(list_response.status_code, status.HTTP_200_OK)
         list_data = list_response.get_json()
         self.assertEqual(len(list_data), 50)
+
