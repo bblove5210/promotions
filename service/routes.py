@@ -117,6 +117,18 @@ def update_promotions(promotion_id):
     app.logger.info("promotion with ID: %d updated.", promotion.id)
     return jsonify(promotion.serialize()), status.HTTP_200_OK
 
+@app.route("/promotions", methods=["GET"])
+def list_promotions():
+    """
+    GET API to list all promotions.
+    """
+    app.logger.info("Request to List all Promotions...")
+
+    all_promotions = Promotion.all()
+    promotion_list = [promo.serialize() for promo in all_promotions]
+
+    return jsonify(promotion_list), status.HTTP_200_OK
+
 
     
 ######################################################################
