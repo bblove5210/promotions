@@ -364,3 +364,32 @@ class TestYourResourceService(TestCase):
         response = self.client.get(f"{BASE_URL}/{error_id}", json=promotion.serialize())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+
+    def test_list_promotions_empty(self):
+        """
+        Test listing promotions when no promotions exist.
+        """
+        # Set the content type header as expected by check_content_type
+        response = self.client.get(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        list_data = response.get_json()
+        # Expect an empty list if no promotions exist in the database
+        self.assertEqual(len(list_data), 0)
+
+    def test_list_promotions_with_data(self):
+        """
+        Test listing promotions after creating one promotion.
+        """
+        payload_list = [PromotionFactory().serialize() for _ in range(50)]
+        headers = {"Content-Type": "application/json"}
+        for payload in payload_list:
+            create_response = self.client.post(
+                "/promotions", json=payload, headers=headers
+            )
+            self.assertEqual(create_response.status_code, 201)
+
+        list_response = self.client.get(BASE_URL)
+        self.assertEqual(list_response.status_code, status.HTTP_200_OK)
+        list_data = list_response.get_json()
+        self.assertEqual(len(list_data), 50)
+
