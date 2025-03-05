@@ -98,6 +98,11 @@ def list_promotions():
     """
     app.logger.info("Request to List all Promotions...")
 
+    all_promotions = Promotion.all()
+    promotion_list = [promo.serialize() for promo in all_promotions]
+
+    return jsonify(promotion_list), status.HTTP_200_OK
+
 @app.route("/promotions/<int:promotion_id>", methods=["PUT"])
 def update_promotions(promotion_id):
     """
