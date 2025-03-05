@@ -29,10 +29,11 @@ from flask import Blueprint, request, jsonify
 from service.models import Promotion, DataValidationError
 from datetime import datetime, date
 
-
 ######################################################################
 # GET INDEX
 ######################################################################
+
+
 @app.route("/")
 def index():
     """Root URL response"""
@@ -50,8 +51,6 @@ def index():
 ######################################################################
 #  R E S T   A P I   E N D P O I N T S
 ######################################################################
-
-##----------------------------------------------------------------------------##
 
 
 @app.route("/promotions", methods=["POST"])
@@ -71,19 +70,68 @@ def create_promotions():
     promotion.create()
     app.logger.info("Promotion with new id [%s] saved", promotion.id)
 
-    # TO BE DONE: also return the location of the newly created promotion once GET promotion is created
-    return jsonify(promotion.serialize()), status.HTTP_201_CREATED
+    location_url = url_for("get_promotions", promotion_id=promotion.id, _external=True)
+    return jsonify(promotion.serialize()), status.HTTP_201_CREATED, {"Location": location_url}
 
+# ----------------------
+#    READ A PROMOTION 
+# ----------------------
+@app.route("/promotions/<int:promotion_id>", methods=["GET"])
+def get_promotions(promotion_id):
+    app.logger.info("Request to Retrieve a promotion with id [%s]", promotion_id)
+
+    # Attempt to find the promotion and abort if not found
+    promotion = Promotion.find(promotion_id)
+    if not promotion:
+        abort(status.HTTP_404_NOT_FOUND, f"promotion with id '{promotion_id}' was not found.")
+
+    app.logger.info("Returning promotion: %s", promotion.name)
+    return jsonify(promotion.serialize()), status.HTTP_200_OK
 
 @app.route("/promotions", methods=["GET"])
 def list_promotions():
-    """Return all the promotions"""
-    # To be done
+    """
+    GET API to list all promotions.
+    """
+    app.logger.info("Request to List all Promotions...")
+
+    all_promotions = Promotion.all()
+    promotion_list = [promo.serialize() for promo in all_promotions]
+
+    return jsonify(promotion_list), status.HTTP_200_OK
+
+@app.route("/promotions/<int:promotion_id>", methods=["PUT"])
+def update_promotions(promotion_id):
+    """
+    Update a promotion
+
+    This endpoint will update a promotion based the body that is posted
+    """
+    app.logger.info("Request to Update a promotion with id [%s]", promotion_id)
+    check_content_type("application/json")
+
+    # Attempt to find the promotion and abort if not found
+    promotion = Promotion.find(promotion_id)
+    if not promotion:
+        abort(status.HTTP_404_NOT_FOUND, f"promotion with id '{promotion_id}' was not found.")
+
+    # Update the promotion with the new data
+    data = request.get_json()
+    app.logger.info("Processing: %s", data)
+    promotion.deserialize(data)
+
+    # Save the updates to the database
+    promotion.update()
+
+    app.logger.info("promotion with ID: %d updated.", promotion.id)
+    return jsonify(promotion.serialize()), status.HTTP_200_OK
 
 
-######################################################################
+#####################################################################
 # Checks the ContentType of a request
 ######################################################################
+
+
 def check_content_type(content_type) -> None:
     """Checks that the media type is correct"""
     if "Content-Type" not in request.headers:
@@ -101,7 +149,6 @@ def check_content_type(content_type) -> None:
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         f"Content-Type must be {content_type}",
     )
-
 
 ######################################################################
 # Delete a Promotion

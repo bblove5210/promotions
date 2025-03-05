@@ -15,7 +15,7 @@
 ######################################################################
 
 """
-Test cases for Pet Model
+Test cases for promotion Model
 """
 
 # pylint: disable=duplicate-code
@@ -85,9 +85,71 @@ class TestPromotion(TestCase):
         self.assertEqual(data.start_date, promotion.start_date)
         self.assertEqual(data.end_date, promotion.end_date)
 
+
+    def test_update_promotion(self):
+        """It should Update a promotion"""
+        promotion = PromotionFactory()
+        logging.debug(promotion)
+        promotion.create()
+        logging.debug(promotion)
+        self.assertIsNotNone(promotion.id)
+        # Change it an save it
+        promotion.name = "prom1"
+        original_id = promotion.id
+        promotion.update()
+        self.assertEqual(promotion.id, original_id)
+        self.assertEqual(promotion.name, "prom1")
+        
+        # Fetch it back and make sure the id hasn't changed
+        # but the data did change
+        updated_promo = Promotion.find(original_id)
+        self.assertEqual(updated_promo.name, "prom1")
+
+    def test_update_no_id(self):
+        """It should not Update a promotion with no id"""
+        promotion = PromotionFactory()
+        logging.debug(promotion)
+        promotion.id = None
+        self.assertRaises(DataValidationError, promotion.update)
+
+    def test_read_a_promotion(self):
+        """It should Read a promotion"""
+        promotion = PromotionFactory()
+        promotion.create()
+        promo_id = promotion.id
+        self.assertEqual(len(Promotion.all()), 1)
+
+        # Fetch it back
+        found_promotion = promotion.find(promo_id)
+        self.assertIsNotNone(found_promotion)
+        self.assertEqual(found_promotion.id, promo_id)
+        self.assertEqual(found_promotion.name, promotion.name)
+        self.assertEqual(found_promotion.category, promotion.category)
+        self.assertEqual(found_promotion.discount_x, promotion.discount_x)
+        self.assertEqual(found_promotion.discount_y, promotion.discount_y)
+        self.assertEqual(found_promotion.product_id, promotion.product_id)
+        self.assertEqual(found_promotion.description, promotion.description)
+        self.assertEqual(found_promotion.validity, promotion.validity)
+        self.assertEqual(found_promotion.start_date, promotion.start_date)
+        self.assertEqual(found_promotion.end_date, promotion.end_date)
+
+    def test_list_all(self):
+        """It should list all Promotion"""
+        promotions = Promotion.all()
+        self.assertEqual(promotions, [])
+
+        for _ in range(5):
+            PromotionFactory().create()
+
+        promotions = Promotion.all()
+        self.assertEqual(len(promotions), 5)
+
+
     def test_index(self):
         """It should call the Home Page"""
         response = self.client.get("/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(data["name"], "Promotion REST API Service")
+
+    
