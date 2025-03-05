@@ -88,9 +88,6 @@ def get_promotions(promotion_id):
     app.logger.info("Returning promotion: %s", promotion.name)
     return jsonify(promotion.serialize()), status.HTTP_200_OK
 
-    # TO BE DONE: also return the location of the newly created promotion once GET promotion is created
-    return jsonify(promotion.serialize()), status.HTTP_201_CREATED
-
 @app.route("/promotions", methods=["GET"])
 def list_promotions():
     """
