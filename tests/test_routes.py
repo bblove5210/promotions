@@ -271,6 +271,40 @@ class TestYourResourceService(TestCase):
         response = self.client.post(BASE_URL, json=test_json)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+
+    def test_update_promotion(self):
+        """It should Update an existing promotion"""
+        # create a promotion to update
+        test_promotion = PromotionFactory()
+        response = self.client.post(BASE_URL, json=test_promotion.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # update the promotion
+        new_promotion = response.get_json()
+        logging.debug(new_promotion)
+        new_promotion["name"] = "promo1"
+        promotion_id = new_promotion["id"]
+        response = self.client.put(f"{BASE_URL}/{promotion_id}", json=new_promotion)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        updated_promotion = response.get_json()
+        self.assertEqual(updated_promotion["name"], "promo1")
+
+    def test_update_promotion_invalid_header(self):
+        """It should Update an existing promotion"""
+        # create a promotion to update
+        test_promotion = PromotionFactory()
+        response = self.client.post(BASE_URL, json=test_promotion.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # update the promotion
+        new_promotion = response.get_json()
+        logging.debug(new_promotion)
+        new_promotion["name"] = "promo1"
+        promotion_id = new_promotion["id"]
+        response = self.client.put(f"{BASE_URL}/{promotion_id}")
+        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
     def test_get_a_promotion(self):
         """It should return a Promotion if the promotion_id exists in the database"""
         test_promo = self._create_promotions(1)[0]
