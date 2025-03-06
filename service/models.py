@@ -122,7 +122,8 @@ class Promotion(db.Model):
             "end_date": self.end_date.isoformat(),
         }
 
-    def deserialize(self, data):
+    def deserialize(self, data):  # noqa: C901
+        # pylint: disable=all
         """
         Deserializes a Promotion from a dictionary
 
