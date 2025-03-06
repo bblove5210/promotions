@@ -239,6 +239,11 @@ class TestYourResourceService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         test_json = PromotionFactory().serialize()
+        test_json["start_date"] = "some date"
+        response = self.client.post(BASE_URL, json=test_json)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        test_json = PromotionFactory().serialize()
         test_json["start_date"] = "2025-02-01"
         test_json["end_date"] = "2025-01-01"
         response = self.client.post(BASE_URL, json=test_json)
@@ -371,3 +376,8 @@ class TestYourResourceService(TestCase):
         response = self.client.delete(f"{BASE_URL}/0")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(len(response.data), 0)
+
+    def test_create_invalid_request(self):
+        """It should give error when not posting a valid request"""
+        response = self.client.post(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
