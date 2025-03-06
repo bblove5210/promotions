@@ -24,8 +24,8 @@ import logging
 from unittest import TestCase
 from wsgi import app
 from service.models import Promotion, DataValidationError, db
-from .factories import PromotionFactory
 from service.common import status
+from .factories import PromotionFactory
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
@@ -85,6 +85,13 @@ class TestPromotion(TestCase):
         self.assertEqual(data.start_date, promotion.start_date)
         self.assertEqual(data.end_date, promotion.end_date)
 
+    def test_create_promotion_invalid(self):
+        """It should give error when trying to create invalid Promotion"""
+        promotion = PromotionFactory()
+        promotion.discount_x = "something"
+        with self.assertRaises(DataValidationError):
+            promotion.create()
+
     def test_update_promotion(self):
         """It should Update a promotion"""
         promotion = PromotionFactory()
@@ -110,6 +117,12 @@ class TestPromotion(TestCase):
         logging.debug(promotion)
         promotion.id = None
         self.assertRaises(DataValidationError, promotion.update)
+
+    def test_delete_no_id(self):
+        """It should not delete anything without valid input"""
+        promotion = PromotionFactory()
+        with self.assertRaises(DataValidationError):
+            promotion.delete()
 
     def test_read_a_promotion(self):
         """It should Read a promotion"""

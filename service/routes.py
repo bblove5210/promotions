@@ -80,6 +80,7 @@ def create_promotions():
 # ----------------------
 @app.route("/promotions/<int:promotion_id>", methods=["GET"])
 def get_promotions(promotion_id):
+    """GET API to read a promotion"""
     app.logger.info("Request to Retrieve a promotion with id [%s]", promotion_id)
 
     # Attempt to find the promotion and abort if not found

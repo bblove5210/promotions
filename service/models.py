@@ -122,7 +122,8 @@ class Promotion(db.Model):
             "end_date": self.end_date.isoformat(),
         }
 
-    def deserialize(self, data):
+    def deserialize(self, data):  # noqa: C901
+        # pylint: disable=all
         """
         Deserializes a Promotion from a dictionary
 
@@ -223,13 +224,3 @@ class Promotion(db.Model):
         """Finds a Promotion by it's ID"""
         logger.info("Processing lookup for id %s ...", by_id)
         return cls.query.session.get(cls, by_id)
-
-    @classmethod
-    def find_by_name(cls, name):
-        """Returns all Promotions with the given name
-
-        Args:
-            name (string): the name of the Promotions you want to match
-        """
-        logger.info("Processing name query for %s ...", name)
-        return cls.query.filter(cls.name == name)

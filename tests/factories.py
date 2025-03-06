@@ -5,8 +5,8 @@ Test Factory to make fake objects for testing
 from datetime import date
 
 import factory
-from service.models import Promotion, Category
 from factory.fuzzy import FuzzyChoice, FuzzyDate, FuzzyText, FuzzyInteger
+from service.models import Promotion, Category
 
 
 class PromotionFactory(factory.Factory):
