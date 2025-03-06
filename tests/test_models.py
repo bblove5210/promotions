@@ -24,8 +24,8 @@ import logging
 from unittest import TestCase
 from wsgi import app
 from service.models import Promotion, DataValidationError, db
-from .factories import PromotionFactory
 from service.common import status
+from .factories import PromotionFactory
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
