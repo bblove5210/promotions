@@ -18,4 +18,4 @@ jobs:
         run: docker build -t my-devcontainer -f .devcontainer/Dockerfile .
 
       - name: Run tests
-        run: docker run --rm my-devcontainer pytest tests
+        run: docker run --rm my-devcontainer python -m pytest tests
