@@ -10,8 +10,8 @@ RUN python -m pip install --upgrade pip pipenv && \
 COPY . /app
 
 # Optionally fix permissions or set a non-root user
-# RUN chown -R youruser:youruser /app
-# USER youruser
+RUN chown -R CITest:CITest /app
+USER CITest
 
 COPY .devcontainer/scripts/install-tools.sh /tmp/
 RUN cd /tmp && bash ./install-tools.sh
