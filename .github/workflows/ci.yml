@@ -39,7 +39,7 @@ jobs:
 
       # Build your devcontainer image from .devcontainer/Dockerfile
       - name: Build devcontainer
-        run: docker build -t my-devcontainer -f .devcontainer/Dockerfile .
+        run: docker build -t my-devcontainer -f .github/CI/Dockerfile .
 
       # Run tests inside the container, connecting to Postgres on localhost:5432
       # NOTE: Some GitHub-hosted runners do allow `--network host`, but not all.
