@@ -2,21 +2,20 @@ name: CI
 
 on:
   push:
-    branches: ['*']       # Run on pushes to any branch
+    branches: ['*']
   pull_request:
-    branches: [ master ]  # Run on PRs targeting master
+    branches: [ master ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    container:
-      build:
-        context: .
-        dockerfile: .devcontainer/Dockerfile
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
 
+      - name: Build Docker image
+        run: docker build -t my-devcontainer -f .devcontainer/Dockerfile .
+
       - name: Run tests
-        run: |
-          pytest tests
+        run: docker run --rm my-devcontainer pytest tests
