@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: ["*"]
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # Spin up Postgres as a service on the host runner
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: pgs3cr3t
+        ports:
+          - 5432:5432  # Expose Postgres on localhost:5432 in the runner
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      # Wait for Postgres to accept connections on localhost:5432
+      - name: Wait for Postgres
+        run: |
+          echo "Waiting for Postgres to be ready..."
+          for i in {1..10}; do
+            if nc -z localhost 5432; then
+              echo "Postgres is ready"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Postgres not ready in time!"
+          exit 1
+
+      # Build your devcontainer image from .devcontainer/Dockerfile
+      - name: Build devcontainer
+        run: docker build -t my-devcontainer -f .github/CI/Dockerfile .
+
+      # Run tests inside the container, connecting to Postgres on localhost:5432
+      # NOTE: Some GitHub-hosted runners do allow `--network host`, but not all.
+      - name: Run tests (network=host)
+        run: |
+          docker run --rm \
+            --network host \
+            -e DATABASE_URI="postgresql+psycopg://postgres:pgs3cr3t@127.0.0.1:5432/postgres" \
+            my-devcontainer python -m pytest tests
