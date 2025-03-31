@@ -223,3 +223,6 @@ class TestPromotion(TestCase):
 
         with self.assertRaises(TypeError):
             Promotion.find_by_end_date("something")
+
+        with self.assertRaises(TypeError):
+            Promotion.find_by_product_id("something")

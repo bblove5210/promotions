@@ -108,6 +108,7 @@ def list_promotions():
     category = request.args.get("category")
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
+    product_id = request.args.get("product_id")
 
     if name:
         app.logger.info("find by name: %s", name)
@@ -127,6 +128,9 @@ def list_promotions():
         app.logger.info("find by end_date: %s", end_date)
         date = datetime.fromisoformat(end_date)
         promotions = Promotion.find_by_end_date(date)
+    elif product_id:
+        app.logger.info("find by product_id: %d", product_id)
+        promotions = Promotion.find_by_product_id(int(product_id))
     else:
         promotions = Promotion.all()
 

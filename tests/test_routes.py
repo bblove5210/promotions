@@ -512,3 +512,19 @@ class TestYourResourceService(TestCase):
         self.assertEqual(len(data), test_count)
         for promotion in data:
             self.assertEqual(promotion["end_date"], test_iso_date)
+
+    def test_query_by_product_id(self):
+        """It should Query Promotions by product_id"""
+        promotions = self._create_promotions(10)
+        product_id = promotions[0].product_id
+        test_promotions = [
+            promotion for promotion in promotions if promotion.product_id == product_id
+        ]
+        test_count = len(test_promotions)
+
+        response = self.client.get(BASE_URL, query_string=f"product_id={product_id}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), test_count)
+        for promotion in data:
+            self.assertEqual(promotion["product_id"], product_id)
