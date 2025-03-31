@@ -25,6 +25,7 @@ import logging
 from unittest import TestCase
 import random
 from wsgi import app
+from urllib.parse import quote_plus
 from service.common import status
 from service.models import db, Promotion
 from tests.factories import PromotionFactory
@@ -413,3 +414,46 @@ class TestYourResourceService(TestCase):
 
         response = self.client.post(f"{BASE_URL}/123")
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_query_by_name(self):
+        """It should Query Promotions by name"""
+        promotions = self._create_promotions(5)
+        test_name = promotions[0].name
+        name_count = len(
+            [promotion for promotion in promotions if promotion.name == test_name]
+        )
+        response = self.client.get(
+            BASE_URL, query_string=f"name={quote_plus(test_name)}"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), name_count)
+
+        for promotion in data:
+            self.assertEqual(promotion["name"], test_name)
+
+    def test_query_by_validity(self):
+        """It should Query Promotions by validity"""
+        promotions = self._create_promotions(10)
+        valid_promotions = [
+            promotion for promotion in promotions if promotion.validity is True
+        ]
+        invalid_promotions = [
+            promotion for promotion in promotions if promotion.validity is False
+        ]
+        valid_count = len(valid_promotions)
+        invalid_count = len(invalid_promotions)
+
+        response = self.client.get(BASE_URL, query_string="validity=True")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), valid_count)
+        for promotion in data:
+            self.assertEqual(promotion["validity"], True)
+
+        response = self.client.get(BASE_URL, query_string="validity=False")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), invalid_count)
+        for promotion in data:
+            self.assertEqual(promotion["validity"], False)

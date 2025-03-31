@@ -162,3 +162,40 @@ class TestPromotion(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(data["name"], "Promotion REST API Service")
+
+    def test_find_promotion_name(self):
+        """IT should find the promotion with the corresponding name"""
+        promotion = PromotionFactory()
+        promotion.create()
+
+        data = Promotion.find_by_name(promotion.name)
+        self.assertEqual(data.count(), 1)
+        self.assertEqual(data.first().id, promotion.id)
+
+    def test_find_promotion_validity(self):
+        """It should find the promotions with the corresponding validity"""
+        promotion = PromotionFactory()
+        promotion.validity = True
+        promotion.create()
+
+        data = Promotion.find_by_validity(True)
+        self.assertEqual(data.count(), 1)
+        self.assertEqual(data.first().id, promotion.id)
+
+        self.assertEqual(Promotion.find_by_validity(False).count(), 0)
+
+        for _ in range(10):
+            promotion = PromotionFactory()
+            promotion.validity = True
+            promotion.create()
+
+        for _ in range(10):
+            promotion = PromotionFactory()
+            promotion.validity = False
+            promotion.create()
+
+        data = Promotion.find_by_validity(True)
+        self.assertEqual(data.count(), 11)
+
+        data = Promotion.find_by_validity(False)
+        self.assertEqual(data.count(), 10)

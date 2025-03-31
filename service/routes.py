@@ -100,10 +100,22 @@ def list_promotions():
     """
     GET API to list all promotions.
     """
-    app.logger.info("Request to List all Promotions...")
+    app.logger.info("Request to list Promotions...")
 
-    all_promotions = Promotion.all()
-    promotion_list = [promo.serialize() for promo in all_promotions]
+    name = request.args.get("name")
+    validity = request.args.get("validity")
+
+    if name:
+        app.logger.info("find by name: %s", name)
+        promotions = Promotion.find_by_name(name)
+    elif validity:
+        app.logger.info("find by validity: %s", validity)
+        validity_value = validity.lower() in ["true", "yes", "1"]
+        promotions = Promotion.find_by_validity(validity_value)
+    else:
+        promotions = Promotion.all()
+
+    promotion_list = [promo.serialize() for promo in promotions]
 
     return jsonify(promotion_list), status.HTTP_200_OK
 
