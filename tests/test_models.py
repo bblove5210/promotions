@@ -199,3 +199,13 @@ class TestPromotion(TestCase):
 
         data = Promotion.find_by_validity(False)
         self.assertEqual(data.count(), 10)
+
+    def test_find_promotion_category(self):
+        """It should find the promotions with the corresponding category"""
+        promotion = PromotionFactory()
+        test_category = promotion.category
+        promotion.create()
+
+        data = Promotion.find_by_category(test_category)
+        self.assertEqual(data.count(), 1)
+        self.assertEqual(data.first().category, test_category)

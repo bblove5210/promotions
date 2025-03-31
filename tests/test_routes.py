@@ -24,10 +24,10 @@ import os
 import logging
 from unittest import TestCase
 import random
-from wsgi import app
 from urllib.parse import quote_plus
+from wsgi import app
 from service.common import status
-from service.models import db, Promotion
+from service.models import db, Promotion, Category
 from tests.factories import PromotionFactory
 
 DATABASE_URI = os.getenv(
@@ -457,3 +457,22 @@ class TestYourResourceService(TestCase):
         self.assertEqual(len(data), invalid_count)
         for promotion in data:
             self.assertEqual(promotion["validity"], False)
+
+    def test_query_by_category(self):
+        """It should Query Promotions by Category"""
+        promotions = self._create_promotions(10)
+        percent_promotions = [
+            promotion
+            for promotion in promotions
+            if promotion.category == Category.PERCENTAGE_DISCOUNT_X
+        ]
+        percent_count = len(percent_promotions)
+
+        response = self.client.get(
+            BASE_URL, query_string="category=percentage_discount_x"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), percent_count)
+        for promotion in data:
+            self.assertEqual(promotion["category"], Category.PERCENTAGE_DISCOUNT_X.name)

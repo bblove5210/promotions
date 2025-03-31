@@ -122,7 +122,8 @@ class Promotion(db.Model):
             "end_date": self.end_date.isoformat(),
         }
 
-    def deserialize(self, data):
+    def deserialize(self, data):  # noqa: C901
+        # pylint: disable=all
         """
         Deserializes a Promotion from a dictionary
 
@@ -243,3 +244,15 @@ class Promotion(db.Model):
         """
         logger.info("Processing validity query for %d ...", validity)
         return cls.query.filter(cls.validity == validity)
+
+    @classmethod
+    def find_by_category(cls, category=Category.UNKNOWN):
+        """Returns all Promotion with the given category
+
+        Args:
+            category (enum): the type of category of the Promotion you want to match
+        """
+        if not isinstance(category, Category):
+            raise TypeError("Invalid category, must be type Category")
+        logger.info("Processing category query for %s ...", category)
+        return cls.query.filter(cls.category == category)
