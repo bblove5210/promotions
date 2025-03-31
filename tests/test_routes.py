@@ -413,3 +413,38 @@ class TestYourResourceService(TestCase):
 
         response = self.client.post(f"{BASE_URL}/123")
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_extend_promotion_duration_invalid(self):
+        """It should give error when having no payload / wrong json attribute / invalid date"""
+        response = self.client.put(f"{BASE_URL}/123/extend")
+        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+        payload = {"end_date": "2024-01-01"}
+        invalid_payload = {"start_date": "2024-01-01"}
+        response = self.client.put(f"{BASE_URL}/123/extend", json=payload)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        data = PromotionFactory().serialize()
+        data["start_date"] = "2025-01-01"
+        data["end_date"] = "2025-04-01"
+        location = self.client.post(BASE_URL, json=data).headers.get("location", None)
+
+        response = self.client.put(f"{location}/extend", json=invalid_payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.put(f"{location}/extend", json=payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_extend_promotion_duration(self):
+        """It should change the end_date of the promotion to the specified date"""
+        data = PromotionFactory().serialize()
+        data["start_date"] = "2025-01-01"
+        data["end_date"] = "2025-04-01"
+        location = self.client.post(BASE_URL, json=data).headers.get("location", None)
+
+        payload = {"end_date": "2025-05-01"}
+        response = self.client.put(f"{location}/extend", json=payload)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.put(f"{location}/extend", json=payload)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
