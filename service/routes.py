@@ -138,6 +138,37 @@ def update_promotions(promotion_id):
     return jsonify(promotion.serialize()), status.HTTP_200_OK
 
 
+@app.route("/promotions/<int:promotion_id>/valid", methods=["PUT", "DELETE"])
+def validate_promotions(promotion_id):
+    """Changing the validity of the Promotion to valid or invalid"""
+    app.logger.info(
+        "Request to change the validity of promotion with id %d to %s",
+        promotion_id,
+        ("valid" if request.method == "PUT" else "invalid"),
+    )
+
+    promotion = Promotion.find(promotion_id)
+    if not promotion:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Promotion with id '{promotion_id}' was not found.",
+        )
+
+    if request.method == "PUT":
+        promotion.validity = True
+    else:
+        promotion.validity = False
+
+    promotion.update()
+
+    app.logger.info(
+        "Promotion with ID: %d has been %s",
+        promotion_id,
+        ("validated" if request.method == "PUT" else "invalidated"),
+    )
+    return promotion.serialize(), status.HTTP_200_OK
+
+
 #####################################################################
 # Checks the ContentType of a request
 ######################################################################
