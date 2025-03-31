@@ -413,3 +413,57 @@ class TestYourResourceService(TestCase):
 
         response = self.client.post(f"{BASE_URL}/123")
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_validate_promotion(self):
+        """It should make the Promotion valid"""
+        response = self.client.put(f"{BASE_URL}/123/valid")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        valid_promotion = PromotionFactory()
+        valid_promotion.validity = True
+
+        invalid_promotion = PromotionFactory()
+        invalid_promotion.validity = False
+
+        valid_location = self.client.post(
+            BASE_URL, json=valid_promotion.serialize()
+        ).headers.get("location", None)
+        invalid_location = self.client.post(
+            BASE_URL, json=invalid_promotion.serialize()
+        ).headers.get("location", None)
+
+        valid_response = self.client.put(f"{valid_location}/valid")
+        invalid_response = self.client.put(f"{invalid_location}/valid")
+
+        self.assertEqual(valid_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(invalid_response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(valid_response.get_json()["validity"], True)
+        self.assertEqual(invalid_response.get_json()["validity"], True)
+
+    def test_invalidate_promotion(self):
+        """It should make the Promotion invalid"""
+        response = self.client.delete(f"{BASE_URL}/123/valid")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        valid_promotion = PromotionFactory()
+        valid_promotion.validity = True
+
+        invalid_promotion = PromotionFactory()
+        invalid_promotion.validity = False
+
+        valid_location = self.client.post(
+            BASE_URL, json=valid_promotion.serialize()
+        ).headers.get("location", None)
+        invalid_location = self.client.post(
+            BASE_URL, json=invalid_promotion.serialize()
+        ).headers.get("location", None)
+
+        valid_response = self.client.delete(f"{valid_location}/valid")
+        invalid_response = self.client.delete(f"{invalid_location}/valid")
+
+        self.assertEqual(valid_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(invalid_response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(valid_response.get_json()["validity"], False)
+        self.assertEqual(invalid_response.get_json()["validity"], False)
