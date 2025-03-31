@@ -242,6 +242,8 @@ class Promotion(db.Model):
         Args:
             validity (boolean): the validity of the Promotions you want to match
         """
+        if not isinstance(validity, bool):
+            raise TypeError("invalid validity, must be of type boolean")
         logger.info("Processing validity query for %d ...", validity)
         return cls.query.filter(cls.validity == validity)
 
@@ -250,9 +252,45 @@ class Promotion(db.Model):
         """Returns all Promotion with the given category
 
         Args:
-            category (enum): the type of category of the Promotion you want to match
+            category (Category): the type of category of the Promotion you want to match
         """
         if not isinstance(category, Category):
-            raise TypeError("Invalid category, must be type Category")
+            raise TypeError("Invalid category, must be of type Category")
         logger.info("Processing category query for %s ...", category)
         return cls.query.filter(cls.category == category)
+
+    @classmethod
+    def find_by_start_date(cls, start_date):
+        """Returns all Promotions with the given start_date
+
+        Args:
+            start_date (date): the start_date of the Promotions you want to match
+        """
+        if not isinstance(start_date, date):
+            raise TypeError("Invalid start_date, must be of type date")
+        logger.info("Processing start_date query for %s ...", start_date.isoformat())
+        return cls.query.filter(cls.start_date == start_date)
+
+    @classmethod
+    def find_by_end_date(cls, end_date):
+        """Returns all Promotions with the given end_date
+
+        Args:
+            end_date (date): the end_date of the Promotions you want to match
+        """
+        if not isinstance(end_date, date):
+            raise TypeError("Invalid end_date, must be of type date")
+        logger.info("Processing end_date query for %s ...", end_date.isoformat())
+        return cls.query.filter(cls.end_date == end_date)
+
+    @classmethod
+    def find_by_product_id(cls, product_id):
+        """Returns all Promotions with the given product_id
+
+        Args:
+            product_id (int): the product_id of the Promotions you want to match
+        """
+        if not isinstance(product_id, int):
+            raise TypeError("Invalid product_id, must be of type int")
+        logger.info("Processing product-id query for %d ...", product_id)
+        return cls.query.filter(cls.product_id == product_id)

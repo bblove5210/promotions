@@ -209,3 +209,17 @@ class TestPromotion(TestCase):
         data = Promotion.find_by_category(test_category)
         self.assertEqual(data.count(), 1)
         self.assertEqual(data.first().category, test_category)
+
+    def test_find_promotion_type_error(self):
+        """It should raise TypeError when querying with invalid types"""
+        with self.assertRaises(TypeError):
+            Promotion.find_by_validity("something")
+
+        with self.assertRaises(TypeError):
+            Promotion.find_by_category("something")
+
+        with self.assertRaises(TypeError):
+            Promotion.find_by_start_date("something")
+
+        with self.assertRaises(TypeError):
+            Promotion.find_by_end_date("something")

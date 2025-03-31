@@ -21,6 +21,7 @@ This service implements a REST API that allows you to Create, Read, Update
 and Delete Promotion
 """
 
+from datetime import datetime
 from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
 from service.models import Promotion, Category
@@ -105,6 +106,8 @@ def list_promotions():
     name = request.args.get("name")
     validity = request.args.get("validity")
     category = request.args.get("category")
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
 
     if name:
         app.logger.info("find by name: %s", name)
@@ -116,6 +119,14 @@ def list_promotions():
     elif category:
         app.logger.info("find by category: %s", category)
         promotions = Promotion.find_by_category(Category[category.upper()])
+    elif start_date:
+        app.logger.info("find by start_date: %s", start_date)
+        date = datetime.fromisoformat(start_date)
+        promotions = Promotion.find_by_start_date(date)
+    elif end_date:
+        app.logger.info("find by end_date: %s", end_date)
+        date = datetime.fromisoformat(end_date)
+        promotions = Promotion.find_by_end_date(date)
     else:
         promotions = Promotion.all()
 

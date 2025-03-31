@@ -459,7 +459,7 @@ class TestYourResourceService(TestCase):
             self.assertEqual(promotion["validity"], False)
 
     def test_query_by_category(self):
-        """It should Query Promotions by Category"""
+        """It should Query Promotions by category"""
         promotions = self._create_promotions(10)
         percent_promotions = [
             promotion
@@ -476,3 +476,39 @@ class TestYourResourceService(TestCase):
         self.assertEqual(len(data), percent_count)
         for promotion in data:
             self.assertEqual(promotion["category"], Category.PERCENTAGE_DISCOUNT_X.name)
+
+    def test_query_by_start_date(self):
+        """It should Query Promotions by start_date"""
+        promotions = self._create_promotions(10)
+        test_date = promotions[0].start_date
+        test_iso_date = test_date.isoformat()
+        test_promotions = [
+            promotion for promotion in promotions if promotion.start_date == test_date
+        ]
+        test_count = len(test_promotions)
+        logging.debug("test_date: %s", test_iso_date)
+
+        response = self.client.get(BASE_URL, query_string=f"start_date={test_iso_date}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), test_count)
+        for promotion in data:
+            self.assertEqual(promotion["start_date"], test_iso_date)
+
+    def test_query_by_end_date(self):
+        """It should Query Promotions by end_date"""
+        promotions = self._create_promotions(10)
+        test_date = promotions[0].end_date
+        test_iso_date = test_date.isoformat()
+        test_promotions = [
+            promotion for promotion in promotions if promotion.end_date == test_date
+        ]
+        test_count = len(test_promotions)
+        logging.debug("test_date: %s", test_iso_date)
+
+        response = self.client.get(BASE_URL, query_string=f"end_date={test_iso_date}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), test_count)
+        for promotion in data:
+            self.assertEqual(promotion["end_date"], test_iso_date)
