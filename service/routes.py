@@ -21,6 +21,7 @@ This service implements a REST API that allows you to Create, Read, Update
 and Delete Promotion
 """
 
+from datetime import date
 from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
 from service.models import Promotion
@@ -136,6 +137,35 @@ def update_promotions(promotion_id):
 
     app.logger.info("promotion with ID: %d updated.", promotion.id)
     return jsonify(promotion.serialize()), status.HTTP_200_OK
+
+
+@app.route("/promotions/<int:promotion_id>/extend", methods=["PUT"])
+def extend_promotions(promotion_id):
+    """Change the end_date of the given promotion to the date specified in the payload"""
+    app.logger.info(
+        "Request to change the end_date of promotion with id %d", promotion_id
+    )
+
+    check_content_type("application/json")
+    promotion = Promotion.find(promotion_id)
+    if not promotion:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"promotion with id '{promotion_id}' was not found.",
+        )
+
+    data = request.get_json()
+    if "end_date" not in data:
+        abort(status.HTTP_400_BAD_REQUEST, "application/json does not contain end_date")
+
+    new_date = date.fromisoformat(data["end_date"])
+    if new_date < promotion.start_date:
+        abort(status.HTTP_400_BAD_REQUEST, "new end_date is before start_date")
+
+    promotion.end_date = new_date
+    promotion.update()
+
+    return promotion.serialize(), status.HTTP_200_OK
 
 
 #####################################################################
