@@ -528,3 +528,92 @@ class TestYourResourceService(TestCase):
         self.assertEqual(len(data), test_count)
         for promotion in data:
             self.assertEqual(promotion["product_id"], product_id)
+
+    def test_validate_promotion(self):
+        """It should make the Promotion valid"""
+        response = self.client.put(f"{BASE_URL}/123/valid")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        valid_promotion = PromotionFactory()
+        valid_promotion.validity = True
+
+        invalid_promotion = PromotionFactory()
+        invalid_promotion.validity = False
+
+        valid_location = self.client.post(
+            BASE_URL, json=valid_promotion.serialize()
+        ).headers.get("location", None)
+        invalid_location = self.client.post(
+            BASE_URL, json=invalid_promotion.serialize()
+        ).headers.get("location", None)
+
+        valid_response = self.client.put(f"{valid_location}/valid")
+        invalid_response = self.client.put(f"{invalid_location}/valid")
+
+        self.assertEqual(valid_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(invalid_response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(valid_response.get_json()["validity"], True)
+        self.assertEqual(invalid_response.get_json()["validity"], True)
+
+    def test_invalidate_promotion(self):
+        """It should make the Promotion invalid"""
+        response = self.client.delete(f"{BASE_URL}/123/valid")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        valid_promotion = PromotionFactory()
+        valid_promotion.validity = True
+
+        invalid_promotion = PromotionFactory()
+        invalid_promotion.validity = False
+
+        valid_location = self.client.post(
+            BASE_URL, json=valid_promotion.serialize()
+        ).headers.get("location", None)
+        invalid_location = self.client.post(
+            BASE_URL, json=invalid_promotion.serialize()
+        ).headers.get("location", None)
+
+        valid_response = self.client.delete(f"{valid_location}/valid")
+        invalid_response = self.client.delete(f"{invalid_location}/valid")
+
+        self.assertEqual(valid_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(invalid_response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(valid_response.get_json()["validity"], False)
+        self.assertEqual(invalid_response.get_json()["validity"], False)
+
+    def test_extend_promotion_duration_invalid(self):
+        """It should give error when having no payload / wrong json attribute / invalid date"""
+        response = self.client.put(f"{BASE_URL}/123/extend")
+        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+        payload = {"end_date": "2024-01-01"}
+        invalid_payload = {"start_date": "2024-01-01"}
+        response = self.client.put(f"{BASE_URL}/123/extend", json=payload)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        data = PromotionFactory().serialize()
+        data["start_date"] = "2025-01-01"
+        data["end_date"] = "2025-04-01"
+        location = self.client.post(BASE_URL, json=data).headers.get("location", None)
+
+        response = self.client.put(f"{location}/extend", json=invalid_payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.put(f"{location}/extend", json=payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_extend_promotion_duration(self):
+        """It should change the end_date of the promotion to the specified date"""
+        data = PromotionFactory().serialize()
+        data["start_date"] = "2025-01-01"
+        data["end_date"] = "2025-04-01"
+        location = self.client.post(BASE_URL, json=data).headers.get("location", None)
+
+        payload = {"end_date": "2025-05-01"}
+        response = self.client.put(f"{location}/extend", json=payload)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.put(f"{location}/extend", json=payload)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
