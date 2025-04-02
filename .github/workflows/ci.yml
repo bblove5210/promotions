@@ -49,3 +49,17 @@ jobs:
             --network host \
             -e DATABASE_URI="postgresql+psycopg://postgres:pgs3cr3t@127.0.0.1:5432/postgres" \
             my-devcontainer python -m pytest tests
+      
+      - name: Run tests and generate coverage report
+        run: |
+          docker run --rm \
+            --network host \
+            -e DATABASE_URI="postgresql+psycopg://postgres:pgs3cr3t@127.0.0.1:5432/postgres" \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            my-devcontainer pytest --cov=service --cov-report=xml     
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
