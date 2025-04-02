@@ -24,9 +24,10 @@ import os
 import logging
 from unittest import TestCase
 import random
+from urllib.parse import quote_plus
 from wsgi import app
 from service.common import status
-from service.models import db, Promotion
+from service.models import db, Promotion, Category
 from tests.factories import PromotionFactory
 
 DATABASE_URI = os.getenv(
@@ -413,6 +414,120 @@ class TestYourResourceService(TestCase):
 
         response = self.client.post(f"{BASE_URL}/123")
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_query_by_name(self):
+        """It should Query Promotions by name"""
+        promotions = self._create_promotions(5)
+        test_name = promotions[0].name
+        name_count = len(
+            [promotion for promotion in promotions if promotion.name == test_name]
+        )
+        response = self.client.get(
+            BASE_URL, query_string=f"name={quote_plus(test_name)}"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), name_count)
+
+        for promotion in data:
+            self.assertEqual(promotion["name"], test_name)
+
+    def test_query_by_validity(self):
+        """It should Query Promotions by validity"""
+        promotions = self._create_promotions(10)
+        valid_promotions = [
+            promotion for promotion in promotions if promotion.validity is True
+        ]
+        invalid_promotions = [
+            promotion for promotion in promotions if promotion.validity is False
+        ]
+        valid_count = len(valid_promotions)
+        invalid_count = len(invalid_promotions)
+
+        response = self.client.get(BASE_URL, query_string="validity=True")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), valid_count)
+        for promotion in data:
+            self.assertEqual(promotion["validity"], True)
+
+        response = self.client.get(BASE_URL, query_string="validity=False")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), invalid_count)
+        for promotion in data:
+            self.assertEqual(promotion["validity"], False)
+
+    def test_query_by_category(self):
+        """It should Query Promotions by category"""
+        promotions = self._create_promotions(10)
+        percent_promotions = [
+            promotion
+            for promotion in promotions
+            if promotion.category == Category.PERCENTAGE_DISCOUNT_X
+        ]
+        percent_count = len(percent_promotions)
+
+        response = self.client.get(
+            BASE_URL, query_string="category=percentage_discount_x"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), percent_count)
+        for promotion in data:
+            self.assertEqual(promotion["category"], Category.PERCENTAGE_DISCOUNT_X.name)
+
+    def test_query_by_start_date(self):
+        """It should Query Promotions by start_date"""
+        promotions = self._create_promotions(10)
+        test_date = promotions[0].start_date
+        test_iso_date = test_date.isoformat()
+        test_promotions = [
+            promotion for promotion in promotions if promotion.start_date == test_date
+        ]
+        test_count = len(test_promotions)
+        logging.debug("test_date: %s", test_iso_date)
+
+        response = self.client.get(BASE_URL, query_string=f"start_date={test_iso_date}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), test_count)
+        for promotion in data:
+            self.assertEqual(promotion["start_date"], test_iso_date)
+
+    def test_query_by_end_date(self):
+        """It should Query Promotions by end_date"""
+        promotions = self._create_promotions(10)
+        test_date = promotions[0].end_date
+        test_iso_date = test_date.isoformat()
+        test_promotions = [
+            promotion for promotion in promotions if promotion.end_date == test_date
+        ]
+        test_count = len(test_promotions)
+        logging.debug("test_date: %s", test_iso_date)
+
+        response = self.client.get(BASE_URL, query_string=f"end_date={test_iso_date}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), test_count)
+        for promotion in data:
+            self.assertEqual(promotion["end_date"], test_iso_date)
+
+    def test_query_by_product_id(self):
+        """It should Query Promotions by product_id"""
+        promotions = self._create_promotions(10)
+        product_id = promotions[0].product_id
+        test_promotions = [
+            promotion for promotion in promotions if promotion.product_id == product_id
+        ]
+        test_count = len(test_promotions)
+
+        response = self.client.get(BASE_URL, query_string=f"product_id={product_id}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), test_count)
+        for promotion in data:
+            self.assertEqual(promotion["product_id"], product_id)
 
     def test_validate_promotion(self):
         """It should make the Promotion valid"""

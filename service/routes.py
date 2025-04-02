@@ -21,10 +21,10 @@ This service implements a REST API that allows you to Create, Read, Update
 and Delete Promotion
 """
 
-from datetime import date
+from datetime import datetime, date
 from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
-from service.models import Promotion
+from service.models import Promotion, Category
 from service.common import status  # HTTP Status Codes
 
 ######################################################################
@@ -101,10 +101,40 @@ def list_promotions():
     """
     GET API to list all promotions.
     """
-    app.logger.info("Request to List all Promotions...")
+    app.logger.info("Request to list Promotions...")
 
-    all_promotions = Promotion.all()
-    promotion_list = [promo.serialize() for promo in all_promotions]
+    name = request.args.get("name")
+    validity = request.args.get("validity")
+    category = request.args.get("category")
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+    product_id = request.args.get("product_id")
+
+    if name:
+        app.logger.info("find by name: %s", name)
+        promotions = Promotion.find_by_name(name)
+    elif validity:
+        app.logger.info("find by validity: %s", validity)
+        validity_value = validity.lower() in ["true", "yes", "1"]
+        promotions = Promotion.find_by_validity(validity_value)
+    elif category:
+        app.logger.info("find by category: %s", category)
+        promotions = Promotion.find_by_category(Category[category.upper()])
+    elif start_date:
+        app.logger.info("find by start_date: %s", start_date)
+        date = datetime.fromisoformat(start_date)
+        promotions = Promotion.find_by_start_date(date)
+    elif end_date:
+        app.logger.info("find by end_date: %s", end_date)
+        date = datetime.fromisoformat(end_date)
+        promotions = Promotion.find_by_end_date(date)
+    elif product_id:
+        app.logger.info("find by product_id: %d", product_id)
+        promotions = Promotion.find_by_product_id(int(product_id))
+    else:
+        promotions = Promotion.all()
+
+    promotion_list = [promo.serialize() for promo in promotions]
 
     return jsonify(promotion_list), status.HTTP_200_OK
 
