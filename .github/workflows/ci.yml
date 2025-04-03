@@ -57,10 +57,11 @@ jobs:
             -e DATABASE_URI="postgresql+psycopg://postgres:pgs3cr3t@127.0.0.1:5432/postgres" \
             -v ${{ github.workspace }}:/workspace \
             -w /workspace \
-            my-devcontainer pytest --cov=service --cov-report=xml     
+            my-devcontainer pytest --cov=service --cov-report=xml:coverage.xml     
       
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: CSCI-GA-2820-SP25-003/promotions
+          files: coverage.xml
