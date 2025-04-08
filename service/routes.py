@@ -122,12 +122,12 @@ def list_promotions():
         promotions = Promotion.find_by_category(Category[category.upper()])
     elif start_date:
         app.logger.info("find by start_date: %s", start_date)
-        date = datetime.fromisoformat(start_date)
-        promotions = Promotion.find_by_start_date(date)
+        start_date = datetime.fromisoformat(start_date)
+        promotions = Promotion.find_by_start_date(start_date)
     elif end_date:
         app.logger.info("find by end_date: %s", end_date)
-        date = datetime.fromisoformat(end_date)
-        promotions = Promotion.find_by_end_date(date)
+        end_date = datetime.fromisoformat(end_date)
+        promotions = Promotion.find_by_end_date(end_date)
     elif product_id:
         app.logger.info("find by product_id: %d", product_id)
         promotions = Promotion.find_by_product_id(int(product_id))
@@ -227,6 +227,8 @@ def extend_promotions(promotion_id):
     promotion.update()
 
     return promotion.serialize(), status.HTTP_200_OK
+
+
 #####################################################################
 # Checks the ContentType of a request
 ######################################################################
@@ -269,3 +271,18 @@ def delete_promotions(promotion_id):
         promotion.delete()
 
     return {}, status.HTTP_204_NO_CONTENT
+
+
+######################################################################
+# Health Check
+######################################################################
+@app.route("/health", methods=["GET"])
+def health():
+    """Health Check
+    This endpoint returns a 200 response if the service is running
+    """
+    app.logger.info("Request for Health Check")
+    return (
+        jsonify(status="OK"),
+        status.HTTP_200_OK,
+    )

@@ -617,3 +617,20 @@ class TestYourResourceService(TestCase):
 
         response = self.client.put(f"{location}/extend", json=payload)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    # ----------------------------------------------------------
+    # TEST HEALTH CHECK
+    # ----------------------------------------------------------
+
+    def test_health_check_endpoint(self):
+        """It should return a 200 status with 'status':'OK' in the JSON response."""
+        response = self.client.get("/health")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertIsNotNone(data)
+        self.assertEqual(data.get("status"), "OK")
+
+    def test_health_check_method_not_allowed(self):
+        """It should return 405 Method Not Allowed for unsupported HTTP methods on /health."""
+        response = self.client.post("/health")
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
