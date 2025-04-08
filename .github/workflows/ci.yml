@@ -53,8 +53,8 @@ jobs:
       - name: Run flake8 linting
         run: docker run --rm my-devcontainer flake8 .
 
-      # - name: Run pylint linting
-      #   run: docker run --rm my-devcontainer pylint your_module_or_package
+      - name: Run pylint linting
+        run: docker run --rm my-devcontainer pylint service wsgi.py
       
       - name: Run tests and generate coverage report
         run: |
