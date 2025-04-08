@@ -49,6 +49,12 @@ jobs:
             --network host \
             -e DATABASE_URI="postgresql+psycopg://postgres:pgs3cr3t@127.0.0.1:5432/postgres" \
             my-devcontainer python -m pytest tests
+
+      - name: Run flake8 linting
+        run: docker run --rm my-devcontainer flake8 .
+
+      # - name: Run pylint linting
+      #   run: docker run --rm my-devcontainer pylint your_module_or_package
       
       - name: Run tests and generate coverage report
         run: |
