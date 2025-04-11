@@ -75,7 +75,7 @@ jobs:
       - name: Install Python Dependencies for BDD
         run: |
           pip install pipenv
-          pipenv install --dev
+          pipenv install --dev --python $(which python3)
       
       - name: Install Chrome
         run: |
