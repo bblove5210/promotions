@@ -21,9 +21,8 @@ def before_all(context):
     service = Service(ChromeDriverManager().install())
     context.driver = webdriver.Chrome(service=service, options=options)
     context.driver.implicitly_wait(context.WAIT_SECONDS)
-    
-    context.config.setup_logging()
 
+    context.config.setup_logging()
 
 def after_all(context):
     """ Executed after all tests """
