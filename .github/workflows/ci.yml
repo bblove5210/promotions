@@ -77,24 +77,11 @@ jobs:
           pip install pipenv
           pipenv install --dev --python $(which python3)
       
-      - name: Install Chrome
+      - name: Install Google Chrome Stable
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget unzip
           wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo apt install -y ./google-chrome-stable_current_amd64.deb
-  
-      - name: Install ChromeDriver (matching Chrome version)
-        run: |
-          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+')
-          echo "Detected Chrome version: $CHROME_VERSION"
-          DRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
-          echo "Matching ChromeDriver version: $DRIVER_VERSION"
-          wget "https://chromedriver.storage.googleapis.com/${DRIVER_VERSION}/chromedriver_linux64.zip"
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/local/bin/
-          sudo chmod +x /usr/local/bin/chromedriver
-        
+          sudo dpkg -i google-chrome-stable_current_amd64.deb || sudo apt-get install -f -y
       
       - name: Run Flask service in background
         run: |

@@ -1,5 +1,7 @@
 from os import getenv
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
 WAIT_SECONDS = int(getenv('WAIT_SECONDS', '60'))
 BASE_URL = getenv('BASE_URL', 'http://localhost:8080')
@@ -13,10 +15,13 @@ def before_all(context):
     options = webdriver.ChromeOptions()
     options.add_argument("--no-sandbox")
     options.add_argument("--headless")
-    context.driver = webdriver.Chrome(options=options)
+    options.add_argument("--disable-dev-shm-usage")
+    options.binary_location = "/usr/bin/google-chrome"
+
+    service = Service(ChromeDriverManager().install())
+    context.driver = webdriver.Chrome(service=service, options=options)
     context.driver.implicitly_wait(context.WAIT_SECONDS)
-    # -- SET LOG LEVEL: behave --logging-level=ERROR ...
-    # on behave command-line or in "behave.ini"
+    
     context.config.setup_logging()
 
 
