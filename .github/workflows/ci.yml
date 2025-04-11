@@ -71,3 +71,41 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: CSCI-GA-2820-SP25-003/promotions
           files: coverage.xml
+      
+      - name: Install Python Dependencies for BDD
+        run: |
+          pip install pipenv
+          pipenv install --dev
+      
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt install -y ./google-chrome-stable_current_amd64.deb
+  
+      - name: Install ChromeDriver
+        run: |
+          LATEST=$(curl -sSL https://chromedriver.storage.googleapis.com/LATEST_RELEASE)
+          wget https://chromedriver.storage.googleapis.com/${LATEST}/chromedriver_linux64.zip
+          unzip chromedriver_linux64.zip
+          sudo mv chromedriver /usr/local/bin/
+          sudo chmod +x /usr/local/bin/chromedriver
+      
+      - name: Run Flask service in background
+        run: |
+          docker run -d \
+            --network host \
+            -e DATABASE_URI="postgresql+psycopg://postgres:pgs3cr3t@127.0.0.1:5432/postgres" \
+            -p 8080:8080 \
+            --name flask-service \
+            my-devcontainer honcho start
+          sleep 10
+  
+      - name: Run BDD Tests with Behave
+        run: pipenv run behave
+        env:
+          BASE_URL: http://localhost:8080
+      
+      - name: Stop Flask container
+        run: docker stop flask-service
