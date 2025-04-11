@@ -19,4 +19,3 @@ def step_no_404_error(context):
     """ Make sure there is no 404 error on the page """
     body = context.driver.find_element(By.TAG_NAME, 'body')
     assert "404 Not Found" not in body.text, "Found 404 error on the page!"
-
