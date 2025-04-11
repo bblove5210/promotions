@@ -23,3 +23,4 @@ def before_all(context):
 def after_all(context):
     """ Executed after all tests """
     context.driver.quit()
+
