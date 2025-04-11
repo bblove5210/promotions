@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 
 ID_PREFIX = 'promotion_'
 
+
 @when('I visit the "Home Page"')
 def step_visit_home_page(context):
     """Make a call to the base URL."""
