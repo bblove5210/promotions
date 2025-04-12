@@ -20,9 +20,9 @@ and SQL database
 """
 import sys
 from flask import Flask
+from flask_cors import CORS
 from service import config
 from service.common import log_handlers
-from flask_cors import CORS
 
 
 ############################################################
@@ -38,6 +38,7 @@ def create_app():
     # Initialize Plugins
     # pylint: disable=import-outside-toplevel
     from service.models import db
+
     db.init_app(app)
 
     with app.app_context():
