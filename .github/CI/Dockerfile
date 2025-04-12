@@ -9,6 +9,7 @@ COPY Pipfile Pipfile.lock ./
 RUN python -m pip install --upgrade pip pipenv && \
     pipenv install --system --dev
 
+RUN pip install flask-cors
 # Copy the rest of your project (including tests)
 COPY . /app
 
