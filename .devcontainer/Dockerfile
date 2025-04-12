@@ -8,6 +8,7 @@ COPY Pipfile Pipfile.lock ./
 RUN python -m pip install --upgrade pip pipenv && \
     pipenv install --system --dev
 
+RUN pip install flask-cors
 # Install dependencies for Node.js installation
 RUN apt-get update && apt-get install -y \
     curl \
