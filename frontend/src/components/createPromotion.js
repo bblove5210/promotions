@@ -132,18 +132,13 @@ const CreatePromotion = () => {
 
         {/* Category */}
         <label htmlFor="category">Category</label>
-        <select
-          id="category"
-          name="category"
-          value={formData.category}
-          onChange={handleChange}
-        >
+        <select id="category" name="category" value={formData.category} onChange={handleChange}>
           <option value="">Select a category</option>
-          {/* Replace these options with your actual categories */}
-          <option value="category1">Category 1</option>
-          <option value="category2">Category 2</option>
-          <option value="category3">Category 3</option>
+          <option value="percentage_discount_x">Percentage Discount X</option>
+          <option value="buy_x_get_y_free">Buy X Get Y Free</option>
+          <option value="spend_x_save_y">Spend X Save Y</option>
         </select>
+
 
         {/* Discount X */}
         <label htmlFor="discount_x">Discount X (integer)</label>
