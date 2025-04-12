@@ -4,7 +4,7 @@ import requests
 
 @when('I send a GET request to the "Home Page"')
 def step_send_get_request(context):
-    context.response =  requests.get(context.BASE_URL)
+    context.response = requests.get(context.BASE_URL)
 
 
 @then('the response status code should be {status_code:d}')
