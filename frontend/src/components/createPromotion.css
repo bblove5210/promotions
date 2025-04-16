@@ -1,0 +1,82 @@
+/* CreatePromotion.css */
+.create-promotion-container {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 600px;
+    margin: 20px auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .create-promotion-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 300;
+  }
+  
+  .promotion-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+  }
+  
+  .promotion-form input[type="text"],
+  .promotion-form input[type="number"],
+  .promotion-form input[type="date"],
+  .promotion-form select,
+  .promotion-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    font-size: 1em;
+  }
+  
+  .promotion-form textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+  
+  .promotion-form .required {
+    color: #ff6b6b;
+  }
+  
+  .promotion-form .submit-btn {
+    background-color: #3a3a3a;
+    border: none;
+    border-radius: 5px;
+    padding: 12px;
+    font-size: 1em;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    width: 100%;
+  }
+  
+  .promotion-form .submit-btn:hover {
+    background-color: #505050;
+  }
+  
+  .error-message {
+    background-color: #ff6b6b;
+    color: #1e1e1e;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  
+  .success-message {
+    background-color: #4caf50;
+    color: #1e1e1e;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  
