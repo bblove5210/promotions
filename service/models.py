@@ -220,6 +220,12 @@ class Promotion(db.Model):
         return cls.query.all()
 
     @classmethod
+    def remove_all(cls):
+        """Removes all documents from the database (use for testing)"""
+        for document in cls.database:  # pylint: disable=(not-an-iterable
+            document.delete()
+
+    @classmethod
     def find(cls, by_id):
         """Finds a Promotion by it's ID"""
         logger.info("Processing lookup for id %s ...", by_id)

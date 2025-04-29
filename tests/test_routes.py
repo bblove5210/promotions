@@ -33,7 +33,7 @@ from tests.factories import PromotionFactory
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
 )
-BASE_URL = "/promotions"
+BASE_URL = "/api/promotions"
 
 
 ######################################################################
@@ -286,12 +286,9 @@ class TestYourResourceService(TestCase):
         Test listing promotions after creating one promotion.
         """
         payload_list = [PromotionFactory().serialize() for _ in range(50)]
-        headers = {"Content-Type": "application/json"}
         for payload in payload_list:
-            create_response = self.client.post(
-                "/promotions", json=payload, headers=headers
-            )
-            self.assertEqual(create_response.status_code, 201)
+            create_response = self.client.post(BASE_URL, json=payload)
+            self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
 
         list_response = self.client.get(BASE_URL)
         self.assertEqual(list_response.status_code, status.HTTP_200_OK)
