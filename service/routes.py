@@ -14,6 +14,7 @@
 # limitations under the License.
 ######################################################################
 
+# spell: ignore restx
 """
 Promotion Service
 
@@ -21,268 +22,395 @@ This service implements a REST API that allows you to Create, Read, Update
 and Delete Promotion
 """
 
+from functools import wraps
 from datetime import datetime, date
-from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
+from flask import request
+from flask_restx import Api, Resource, fields, reqparse, inputs
 from service.models import Promotion, Category
 from service.common import status  # HTTP Status Codes
 
 ######################################################################
-# GET INDEX
+# Configure Swagger before initializing it
 ######################################################################
+api = Api(
+    app,
+    version="1.0.0",
+    title="Promotion REST API Service",
+    description="This is a promotion microservice server.",
+    default="promotions",
+    default_label="Promotion operations",
+    doc="/apidocs",  # default also could use doc='/apidocs/'
+    prefix="/api",
+)
 
 
+######################################################################
+# Configure the Root route before OpenAPI
+######################################################################
 @app.route("/")
 def index():
     """Root URL response"""
     app.logger.info("Request for Root URL")
     return (
-        jsonify(
-            name="Promotion REST API Service",
-            version="1.0",
-            paths=url_for("list_promotions", _external=True),
-        ),
+        {
+            "name": "Promotion REST API Service",
+            "version": "1.0",
+            "paths": api.url_for(PromotionCollection, _external=True),
+        },
         status.HTTP_200_OK,
     )
-
-
-######################################################################
-#  R E S T   A P I   E N D P O I N T S
-######################################################################
-
-
-@app.route("/promotions", methods=["POST"])
-def create_promotions():
-    """
-    POST API to create a new promotion.
-    Product ID and Promotion Description have to be present, the rest of them have default values.
-    """
-    app.logger.info("Request to Create a Promotion...")
-    check_content_type("application/json")
-
-    promotion = Promotion()
-    data = request.get_json()
-    app.logger.info("Processing: %s", data)
-    promotion.deserialize(data)
-
-    promotion.create()
-    app.logger.info("Promotion with new id [%s] saved", promotion.id)
-
-    location_url = url_for("get_promotions", promotion_id=promotion.id, _external=True)
-    return (
-        jsonify(promotion.serialize()),
-        status.HTTP_201_CREATED,
-        {"Location": location_url},
-    )
-
-
-# ----------------------
-#    READ A PROMOTION
-# ----------------------
-@app.route("/promotions/<int:promotion_id>", methods=["GET"])
-def get_promotions(promotion_id):
-    """GET API to read a promotion"""
-    app.logger.info("Request to Retrieve a promotion with id [%s]", promotion_id)
-
-    # Attempt to find the promotion and abort if not found
-    promotion = Promotion.find(promotion_id)
-    if not promotion:
-        abort(
-            status.HTTP_404_NOT_FOUND,
-            f"promotion with id '{promotion_id}' was not found.",
-        )
-
-    app.logger.info("Returning promotion: %s", promotion.name)
-    return jsonify(promotion.serialize()), status.HTTP_200_OK
-
-
-@app.route("/promotions", methods=["GET"])
-def list_promotions():
-    """
-    GET API to list all promotions.
-    """
-    app.logger.info("Request to list Promotions...")
-
-    name = request.args.get("name")
-    validity = request.args.get("validity")
-    category = request.args.get("category")
-    start_date = request.args.get("start_date")
-    end_date = request.args.get("end_date")
-    product_id = request.args.get("product_id")
-
-    if name:
-        app.logger.info("find by name: %s", name)
-        promotions = Promotion.find_by_name(name)
-    elif validity:
-        app.logger.info("find by validity: %s", validity)
-        validity_value = validity.lower() in ["true", "yes", "1"]
-        promotions = Promotion.find_by_validity(validity_value)
-    elif category:
-        app.logger.info("find by category: %s", category)
-        promotions = Promotion.find_by_category(Category[category.upper()])
-    elif start_date:
-        app.logger.info("find by start_date: %s", start_date)
-        start_date = datetime.fromisoformat(start_date)
-        promotions = Promotion.find_by_start_date(start_date)
-    elif end_date:
-        app.logger.info("find by end_date: %s", end_date)
-        end_date = datetime.fromisoformat(end_date)
-        promotions = Promotion.find_by_end_date(end_date)
-    elif product_id:
-        app.logger.info("find by product_id: %d", product_id)
-        promotions = Promotion.find_by_product_id(int(product_id))
-    else:
-        promotions = Promotion.all()
-
-    promotion_list = [promo.serialize() for promo in promotions]
-
-    return jsonify(promotion_list), status.HTTP_200_OK
-
-
-@app.route("/promotions/<int:promotion_id>", methods=["PUT"])
-def update_promotions(promotion_id):
-    """
-    Update a promotion
-
-    This endpoint will update a promotion based the body that is posted
-    """
-    app.logger.info("Request to Update a promotion with id [%s]", promotion_id)
-    check_content_type("application/json")
-
-    # Attempt to find the promotion and abort if not found
-    promotion = Promotion.find(promotion_id)
-    if not promotion:
-        abort(
-            status.HTTP_404_NOT_FOUND,
-            f"promotion with id '{promotion_id}' was not found.",
-        )
-
-    # Update the promotion with the new data
-    data = request.get_json()
-    app.logger.info("Processing: %s", data)
-    promotion.deserialize(data)
-
-    # Save the updates to the database
-    promotion.update()
-
-    app.logger.info("promotion with ID: %d updated.", promotion.id)
-    return jsonify(promotion.serialize()), status.HTTP_200_OK
-
-
-@app.route("/promotions/<int:promotion_id>/valid", methods=["PUT", "DELETE"])
-def validate_promotions(promotion_id):
-    """Changing the validity of the Promotion to valid or invalid"""
-    app.logger.info(
-        "Request to change the validity of promotion with id %d to %s",
-        promotion_id,
-        ("valid" if request.method == "PUT" else "invalid"),
-    )
-
-    promotion = Promotion.find(promotion_id)
-    if not promotion:
-        abort(
-            status.HTTP_404_NOT_FOUND,
-            f"Promotion with id '{promotion_id}' was not found.",
-        )
-
-    if request.method == "PUT":
-        promotion.validity = True
-    else:
-        promotion.validity = False
-
-    promotion.update()
-
-    app.logger.info(
-        "Promotion with ID: %d has been %s",
-        promotion_id,
-        ("validated" if request.method == "PUT" else "invalidated"),
-    )
-    return promotion.serialize(), status.HTTP_200_OK
-
-
-@app.route("/promotions/<int:promotion_id>/extend", methods=["PUT"])
-def extend_promotions(promotion_id):
-    """Change the end_date of the given promotion to the date specified in the payload"""
-    app.logger.info(
-        "Request to change the end_date of promotion with id %d", promotion_id
-    )
-
-    check_content_type("application/json")
-    promotion = Promotion.find(promotion_id)
-    if not promotion:
-        abort(
-            status.HTTP_404_NOT_FOUND,
-            f"promotion with id '{promotion_id}' was not found.",
-        )
-
-    data = request.get_json()
-    if "end_date" not in data:
-        abort(status.HTTP_400_BAD_REQUEST, "application/json does not contain end_date")
-
-    new_date = date.fromisoformat(data["end_date"])
-    if new_date < promotion.start_date:
-        abort(status.HTTP_400_BAD_REQUEST, "new end_date is before start_date")
-
-    promotion.end_date = new_date
-    promotion.update()
-
-    return promotion.serialize(), status.HTTP_200_OK
-
-
-#####################################################################
-# Checks the ContentType of a request
-######################################################################
-
-
-def check_content_type(content_type) -> None:
-    """Checks that the media type is correct"""
-    if "Content-Type" not in request.headers:
-        app.logger.error("No Content-Type specified.")
-        abort(
-            status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            f"Content-Type must be {content_type}",
-        )
-
-    if request.headers["Content-Type"] == content_type:
-        return
-
-    app.logger.error("Invalid Content-Type: %s", request.headers["Content-Type"])
-    abort(
-        status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-        f"Content-Type must be {content_type}",
-    )
-
-
-######################################################################
-# Delete a Promotion
-######################################################################
-@app.route("/promotions/<int:promotion_id>", methods=["DELETE"])
-def delete_promotions(promotion_id):
-    """
-    Delete a Promotion
-
-    This endpoint will delete a Promotion based the id specified in the path
-    """
-    app.logger.info("Request to Delete a promotion with id [%s]", promotion_id)
-    promotion = Promotion()
-    promotion = Promotion.find(promotion_id)
-
-    if promotion:
-        promotion.delete()
-
-    return {}, status.HTTP_204_NO_CONTENT
 
 
 ######################################################################
 # Health Check
 ######################################################################
-@app.route("/health", methods=["GET"])
+@app.route("/health")
 def health():
-    """Health Check
-    This endpoint returns a 200 response if the service is running
-    """
+    """Health Checkpoint"""
     app.logger.info("Request for Health Check")
-    return (
-        jsonify(status="OK"),
-        status.HTTP_200_OK,
-    )
+    return ({"status": "OK"}, status.HTTP_200_OK)
+
+
+create_model = api.model(
+    "Promotion",
+    {
+        "name": fields.String(required=True, description="The name of the Promotion"),
+        "category": fields.String(
+            required=False,
+            description="The category of the Promotion (e.g. Percent discount, Buy X get Y free, Spend X save Y)",
+        ),
+        "discount_x": fields.Integer(
+            required=False, description="Parameter X of the discount type"
+        ),
+        "discount_y": fields.Integer(
+            required=False, description="Parameter Y of the discount type"
+        ),
+        "product_id": fields.Integer(
+            required=True, description="ID of the corresponding product"
+        ),
+        "description": fields.String(
+            required=True, description="Description of the Promotion"
+        ),
+        "validity": fields.Boolean(
+            required=False, description="Whether the promotion is currently valid"
+        ),
+        "start_date": fields.String(
+            required=False, description="The start date of the Promotion"
+        ),
+        "end_date": fields.String(
+            required=False, description="The end date of the Promotion"
+        ),
+    },
+)
+
+# Promotion model
+promotion_model = api.inherit(
+    "PromotionModel",
+    create_model,
+    {
+        "id": fields.String(
+            readyOnly=True, description="The unique id assigned internally by service"
+        )
+    },
+)
+
+extend_model = api.model(
+    "ExtendModel",
+    {
+        "end_date": fields.String(
+            required=True, description="The new end date for the Promotion"
+        )
+    },
+)
+
+# query string arguments
+promotion_args = reqparse.RequestParser()
+promotion_args.add_argument(
+    "name", type=str, location="args", required=False, help="List Promotions by name"
+)
+promotion_args.add_argument(
+    "category",
+    type=str,
+    location="args",
+    required=False,
+    help="List Promotions by Category",
+)
+promotion_args.add_argument(
+    "validity",
+    type=inputs.boolean,
+    location="args",
+    required=False,
+    help="List Promotions by validity",
+)
+promotion_args.add_argument(
+    "product_id",
+    type=int,
+    location="args",
+    required=False,
+    help="List Promotions by product id",
+)
+promotion_args.add_argument(
+    "start_date",
+    type=str,
+    location="args",
+    required=False,
+    help="List Promotions by start date",
+)
+promotion_args.add_argument(
+    "end_date",
+    type=str,
+    location="args",
+    required=False,
+    help="List Promotions by end date",
+)
+
+
+######################################################################
+# Content-Type Decorator
+######################################################################
+def expect_content_type(expected_type="application/json"):
+    """Decorator to check for expected content-type"""
+
+    def decorator(func):
+        @wraps(func)
+        def decorated(*args, **kwargs):
+            if request.content_type != expected_type:
+                abort(415, f"Content-Type must be {expected_type}")
+            return func(*args, **kwargs)
+
+        return decorated
+
+    return decorator
+
+
+######################################################################
+#  PATH: /promotions/{id}
+######################################################################
+@api.route("/promotions/<promotion_id>")
+@api.param("promotion_id", "The Promotion identifier")
+class PromotionResource(Resource):
+    """
+    PromotionResource class
+    """
+
+    # ------------------------------------------------------------------
+    # RETRIEVE A PROMOTION
+    # ------------------------------------------------------------------
+    @api.doc("get_promotions")
+    @api.response(404, "Promotion not found")
+    @api.marshal_with(promotion_model)
+    def get(self, promotion_id):
+        """
+        Retrieve and single promotion
+        """
+        app.logger.info("Request to Retrieve a promotion with id [%s]", promotion_id)
+        promotion = Promotion.find(promotion_id)
+        if not promotion:
+            abort(
+                status.HTTP_404_NOT_FOUND,
+                f"Promotion with id '{promotion_id}' was not found.",
+            )
+        return promotion.serialize(), status.HTTP_200_OK
+
+    # ------------------------------------------------------------------
+    # UPDATE AN EXISTING PROMOTION
+    # ------------------------------------------------------------------
+    @api.doc("update_promotions")
+    @api.response(404, "Promotion not found")
+    @api.response(400, "The posted Promotion data was not valid")
+    @api.response(415, "Content-Type must be application/json")
+    @api.expect(promotion_model)
+    @expect_content_type()
+    @api.marshal_with(promotion_model)
+    def put(self, promotion_id):
+        """
+        Update a Promotion
+        """
+        app.logger.info("Request to Update a promotion with id [%s]", promotion_id)
+        promotion = Promotion.find(promotion_id)
+        if not promotion:
+            abort(
+                status.HTTP_404_NOT_FOUND,
+                f"Promotion with id '{promotion_id}' was not found.",
+            )
+        app.logger.debug("Payload = %s", api.payload)
+        data = api.payload
+        promotion.deserialize(data)
+        promotion.id = promotion_id
+        promotion.update()
+        return promotion.serialize(), status.HTTP_200_OK
+
+    # ------------------------------------------------------------------
+    # DELETE A Promotion
+    # ------------------------------------------------------------------
+    @api.doc("delete_promotions")
+    @api.response(204, "Promotion deleted")
+    def delete(self, promotion_id):
+        """
+        Delete a Promotion
+        """
+        app.logger.info("Request to Delete a promotion with id [%s]", promotion_id)
+        promotion = Promotion.find(promotion_id)
+        if promotion:
+            promotion.delete()
+            app.logger.info("Promotion with id [%s] was deleted", promotion_id)
+        return "", status.HTTP_204_NO_CONTENT
+
+
+######################################################################
+#  PATH: /promotions
+######################################################################
+@api.route("/promotions", strict_slashes=False)
+class PromotionCollection(Resource):
+    """Handles all interactions with collection of Promotions"""
+
+    # ------------------------------------------------------------------
+    # LIST ALL PROMOTIONS
+    # ------------------------------------------------------------------
+    @api.doc("list_promotions")
+    @api.expect(promotion_args, validate=True)
+    @api.marshal_list_with(promotion_model)
+    def get(self):
+        """Returns all of the Promotions"""
+        app.logger.info("Request to list Promotions...")
+        promotions = []
+        args = promotion_args.parse_args()
+        if args["name"]:
+            app.logger.info("find by name: %s", args["name"])
+            promotions = Promotion.find_by_name(args["name"])
+        elif args["validity"] is not None:
+            app.logger.info("find by validity: %s", args["validity"])
+            promotions = Promotion.find_by_validity(args["validity"])
+        elif args["category"]:
+            app.logger.info("find by category: %s", args["category"])
+            promotions = Promotion.find_by_category(Category[args["category"].upper()])
+        elif args["start_date"]:
+            app.logger.info("find by start_date: %s", args["start_date"])
+            start_date = datetime.fromisoformat(args["start_date"])
+            promotions = Promotion.find_by_start_date(start_date)
+        elif args["end_date"]:
+            app.logger.info("find by end_date: %s", args["end_date"])
+            end_date = datetime.fromisoformat(args["end_date"])
+            promotions = Promotion.find_by_end_date(end_date)
+        elif args["product_id"]:
+            app.logger.info("find by product_id: %d", args["product_id"])
+            promotions = Promotion.find_by_product_id(int(args["product_id"]))
+        else:
+            promotions = Promotion.all()
+
+        results = [promotion.serialize() for promotion in promotions]
+        return results, status.HTTP_200_OK
+
+    # ------------------------------------------------------------------
+    # ADD A NEW PROMOTION
+    # ------------------------------------------------------------------
+    @api.doc("create_promotions")
+    @expect_content_type()
+    @api.expect(promotion_model)
+    @api.response(400, "The posted data was not valid")
+    @api.response(415, "Content-Type must be application/json")
+    @api.marshal_with(promotion_model)
+    def post(self):
+        """Creates a Promotion"""
+        app.logger.info("Request to Create a Promotion")
+        promotion = Promotion()
+        app.logger.debug("Payload = %s", api.payload)
+        promotion.deserialize(api.payload)
+        promotion.create()
+        app.logger.info("Promotion with new id [%s] created!", promotion.id)
+        location_url = api.url_for(
+            PromotionResource, promotion_id=promotion.id, _external=True
+        )
+        return (
+            promotion.serialize(),
+            status.HTTP_201_CREATED,
+            {"location": location_url},
+        )
+
+
+######################################################################
+#  PATH: /promotions/{id}/valid
+######################################################################
+@api.route("/promotions/<promotion_id>/valid")
+@api.param("promotion_id", "The promotion identifier")
+class ValidateResource(Resource):
+    """Action to make promotion valid/invalid"""
+
+    @api.doc("validate_promotions")
+    @api.response(404, "Promotion not found")
+    def put(self, promotion_id):
+        """Make a Promotion valid"""
+        app.logger.info("Request to make Promotion valid")
+        promotion = Promotion.find(promotion_id)
+        if not promotion:
+            abort(
+                status.HTTP_404_NOT_FOUND,
+                f"Promotion with id '{promotion_id}' was not found.",
+            )
+        promotion.validity = True
+        promotion.update()
+        app.logger.info("Promotion with id [%s] has been make valid", promotion.id)
+        return promotion.serialize(), status.HTTP_200_OK
+
+    @api.doc("invalidate_promotions")
+    @api.response(404, "Promotion not found")
+    def delete(self, promotion_id):
+        """Make a Promotion invalid"""
+        app.logger.info("Request ot make Promotion invalid")
+        promotion = Promotion.find(promotion_id)
+        if not promotion:
+            abort(
+                status.HTTP_404_NOT_FOUND,
+                f"Promotion with id '{promotion_id}' was not found.",
+            )
+        promotion.validity = False
+        promotion.update()
+        app.logger.info("Promotion with id [%s] has been make invalid", promotion.id)
+        return promotion.serialize(), status.HTTP_200_OK
+
+
+######################################################################
+#  PATH: /promotions/{id}/extend
+######################################################################
+@api.route("/promotions/<promotion_id>/extend")
+@api.param("promotion_id", "The promotion identifier")
+class ExtendResource(Resource):
+    """Action to change the end_date of a Promotion"""
+
+    @api.doc("extend_promotions")
+    @api.response(400, "The posted data was not valid")
+    @api.response(404, "Promotion not found")
+    @api.response(415, "Content-Type must be application/json")
+    @api.expect(extend_model, validate=True)
+    @expect_content_type()
+    @api.marshal_with(promotion_model)
+    def put(self, promotion_id):
+        """Change the end_date of a Promotion"""
+        app.logger.info("Request to change the end_date of promotion")
+        promotion = Promotion.find(promotion_id)
+        if not promotion:
+            abort(
+                status.HTTP_404_NOT_FOUND,
+                f"promotion with id '{promotion_id}' was not found.",
+            )
+        app.logger.debug("Payload = %s", api.payload)
+        data = api.payload
+        end_date = date.fromisoformat(data.get("end_date"))
+
+        if end_date < promotion.start_date:
+            abort(status.HTTP_400_BAD_REQUEST, "New end date is before start date")
+        promotion.end_date = end_date
+        promotion.update()
+        return promotion.serialize(), status.HTTP_200_OK
+
+
+######################################################################
+#  U T I L I T Y   F U N C T I O N S
+######################################################################
+
+
+def abort(error_code: int, message: str):
+    """Logs errors before aborting"""
+    app.logger.error(message)
+    api.abort(error_code, message)
