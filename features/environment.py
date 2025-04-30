@@ -1,30 +1,54 @@
+"""
+Environment for Behave Testing
+"""
+
 from os import getenv
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 
-WAIT_SECONDS = int(getenv('WAIT_SECONDS', '60'))
-BASE_URL = getenv('BASE_URL', 'http://localhost:8080')
+WAIT_SECONDS = int(getenv("WAIT_SECONDS", "30"))
+BASE_URL = getenv("BASE_URL", "http://localhost:8080")
+DRIVER = getenv("DRIVER", "chrome").lower()
 
 
 def before_all(context):
-    """ Executed once before all tests """
-    context.BASE_URL = BASE_URL
-    context.WAIT_SECONDS = WAIT_SECONDS
-    # Setup Chrome webdriver
-    options = webdriver.ChromeOptions()
-    options.add_argument("--no-sandbox")
-    options.add_argument("--headless")
-    options.add_argument("--disable-dev-shm-usage")
-    options.binary_location = "/usr/bin/google-chrome"
-
-    service = Service(ChromeDriverManager().install())
-    context.driver = webdriver.Chrome(service=service, options=options)
-    context.driver.implicitly_wait(context.WAIT_SECONDS)
-
+    """Executed once before all tests"""
+    context.base_url = BASE_URL
+    context.wait_seconds = WAIT_SECONDS
+    # Select either Chrome or Firefox
+    if "firefox" in DRIVER:
+        context.driver = get_firefox()
+    else:
+        context.driver = get_chrome()
+    context.driver.implicitly_wait(context.wait_seconds)
+    context.driver.set_window_size(1280, 1300)
     context.config.setup_logging()
 
 
 def after_all(context):
-    """ Executed after all tests """
+    """Executed after all tests"""
     context.driver.quit()
+
+
+######################################################################
+# Utility functions to create web drivers
+######################################################################
+
+
+def get_chrome():
+    """Creates a headless Chrome driver"""
+    print("Running Behave using the Chrome driver...\n")
+    options = webdriver.ChromeOptions()
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--headless")
+    return webdriver.Chrome(options=options)
+
+
+def get_firefox():
+    """Creates a headless Firefox driver"""
+    print("Running Behave using the Firefox driver...\n")
+    options = webdriver.FirefoxOptions()
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--headless")
+    return webdriver.Firefox(options=options)
