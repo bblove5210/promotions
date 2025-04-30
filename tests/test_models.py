@@ -24,7 +24,6 @@ import logging
 from unittest import TestCase
 from wsgi import app
 from service.models import Promotion, DataValidationError, db
-from service.common import status
 from .factories import PromotionFactory
 
 DATABASE_URI = os.getenv(
