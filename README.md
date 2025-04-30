@@ -8,10 +8,8 @@
 
 ## Overview
 
-
-The Promotions Squad handles deals on products (E.g.: 20% discount, buy 1 get 1 etc.)
-This project was developed as part of the NYU DevOps and Agile Methodologies course, implementing a complete DevOps pipeline, including Continuous Integration, Kubernetes deployment, BDD testing, and Continuous Delivery.
-=======
+**The Promotions Squad handles deals on products (E.g.: 20% discount, buy 1 get 1 etc.)**
+**This project was developed as part of the NYU DevOps and Agile Methodologies course, implementing a complete DevOps pipeline, including Continuous Integration, Kubernetes deployment, BDD testing, and Continuous Delivery.**
 
 The service is currently deployed at the following URL: [https://promotion-qihangzhou-dev.apps.rm1.0a51.p1.openshiftapps.com/](https://promotion-qihangzhou-dev.apps.rm1.0a51.p1.openshiftapps.com/)
 
