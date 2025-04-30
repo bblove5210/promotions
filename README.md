@@ -28,7 +28,6 @@ The system supports the following types of promotion categories:
 
 Each promotion includes fields to define the `discount_x` and `discount_y` parameters, start and end dates, validity status, and audit timestamps.
 
-
 ## Features Implemented
 
 - Create new promotions
