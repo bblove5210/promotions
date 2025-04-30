@@ -16,16 +16,17 @@ This project was developed as part of the NYU DevOps and Agile Methodologies cou
 ## Features Implemented
 
 - Create new promotions
-
 - Retrieve existing promotions
-
 - Update promotion details
-
 - Delete promotions
-
+- Query promotions by attributes
+- Perform custom actions on promotions
+- Swagger API documentation via Flask-RESTX
 - Service health check endpoint
-
-- Unit tests for models and routes
+- UI for administration with BDD testing
+- Kubernetes deployment (local and OpenShift)
+- Continuous Integration with GitHub Actions
+- Continuous Delivery with Tekton Pipeline
 
 ## Project Structure
 
