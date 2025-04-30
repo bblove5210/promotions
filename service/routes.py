@@ -69,7 +69,9 @@ create_model = api.model(
     "Promotion",
     {
         "name": fields.String(required=True, description="The name of the Promotion"),
+        # pylint: disable=protected-access, no-member
         "category": fields.String(
+            enum=Category._member_names_,
             required=False,
             description="The category of the Promotion (e.g. Percent discount, Buy X get Y free, Spend X save Y)",
         ),
@@ -88,10 +90,10 @@ create_model = api.model(
         "validity": fields.Boolean(
             required=False, description="Whether the promotion is currently valid"
         ),
-        "start_date": fields.String(
+        "start_date": fields.Date(
             required=False, description="The start date of the Promotion"
         ),
-        "end_date": fields.String(
+        "end_date": fields.Date(
             required=False, description="The end date of the Promotion"
         ),
     },
@@ -300,7 +302,7 @@ class PromotionCollection(Resource):
     # ------------------------------------------------------------------
     @api.doc("create_promotions")
     @expect_content_type()
-    @api.expect(promotion_model)
+    @api.expect(create_model)
     @api.response(400, "The posted data was not valid")
     @api.response(415, "Content-Type must be application/json")
     @api.marshal_with(promotion_model)
