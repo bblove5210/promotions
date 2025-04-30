@@ -27,7 +27,7 @@ db = SQLAlchemy()
 
 
 class DataValidationError(Exception):
-    """Used for an data validation errors when deserializing"""
+    """Custom Exception with data validation fails"""
 
 
 class Category(Enum):

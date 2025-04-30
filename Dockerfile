@@ -1,7 +1,7 @@
 ##################################################
 # Create production image
 ##################################################
-FROM python:3.11-slim
+FROM rofrano/pipeline-selenium:latest
 
 # Set up the Python production environment
 WORKDIR /app

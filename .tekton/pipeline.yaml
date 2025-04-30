@@ -1,24 +1,24 @@
-apiVersion: tekton.dev/v1
+﻿apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  creationTimestamp: "2025-04-30T03:35:03Z"
-  generation: 5
+  creationTimestamp: '2025-04-30T03:35:03Z'
+  generation: 8
   managedFields:
     - apiVersion: tekton.dev/v1
       fieldsType: FieldsV1
       fieldsV1:
-        "f:spec":
+        'f:spec':
           .: {}
-          "f:finally": {}
-          "f:params": {}
-          "f:tasks": {}
-          "f:workspaces": {}
+          'f:finally': {}
+          'f:params': {}
+          'f:tasks': {}
+          'f:workspaces': {}
       manager: Mozilla
       operation: Update
-      time: "2025-04-30T05:15:48Z"
+      time: '2025-04-30T13:42:40Z'
   name: cd-pipeline
   namespace: qihangzhou-dev
-  resourceVersion: "1239032027"
+  resourceVersion: '1248775825'
   uid: 9981dcfe-c12a-48a6-9947-cd4bab4b6074
 spec:
   params:
@@ -33,58 +33,17 @@ spec:
       description: Name of the application
       name: APP_NAME
       type: string
-    - default: >-
-        image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(params.APP_NAME):latest
+    - default: 'image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(params.APP_NAME):latest'
       name: IMAGE_NAME
       type: string
-    - name: BASE_URL
+    - default: 'https://promotion-qihangzhou-dev.apps.rm1.0a51.p1.openshiftapps.com/'
+      name: BASE_URL
       type: string
   tasks:
-    - name: git-clone
-      params:
-        - name: url
-          value: $(params.GIT_REPO)
-        - name: revision
-          value: $(params.GIT_REF)
-        - name: refspec
-          value: ""
-        - name: submodules
-          value: "true"
-        - name: depth
-          value: "1"
-        - name: sslVerify
-          value: "true"
-        - name: crtFileName
-          value: ca-bundle.crt
-        - name: subdirectory
-          value: ""
-        - name: sparseCheckoutDirectories
-          value: ""
-        - name: deleteExisting
-          value: "true"
-        - name: httpProxy
-          value: ""
-        - name: httpsProxy
-          value: ""
-        - name: noProxy
-          value: ""
-        - name: verbose
-          value: "true"
-        - name: gitInitImage
-          value: >-
-            gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.40.2
-        - name: userHome
-          value: /home/git
-      taskRef:
-        kind: Task
-        name: git-clone
-      workspaces:
-        - name: output
-          workspace: pipeline-workspace
     - name: pylint
       params:
         - name: image
-          value: "quay.io/rofrano/python:3.11-slim"
+          value: 'quay.io/rofrano/python:3.11-slim'
         - name: path
           value: service
         - name: args
@@ -123,7 +82,7 @@ spec:
           value: ./Dockerfile
         - name: BUILD_ARGS
           value:
-            - ""
+            - ''
         - name: CONTEXT
           value: .
         - name: STORAGE_DRIVER
@@ -131,15 +90,15 @@ spec:
         - name: FORMAT
           value: oci
         - name: BUILD_EXTRA_ARGS
-          value: ""
+          value: ''
         - name: PUSH_EXTRA_ARGS
-          value: ""
+          value: ''
         - name: SKIP_PUSH
-          value: "false"
+          value: 'false'
         - name: TLS_VERIFY
-          value: "true"
+          value: 'true'
         - name: VERBOSE
-          value: "false"
+          value: 'false'
       runAfter:
         - pylint
         - testing
@@ -168,7 +127,7 @@ spec:
         - name: base-url
           value: $(params.BASE_URL)
         - name: wait-seconds
-          value: "60"
+          value: '60'
         - name: driver
           value: chrome
       runAfter:
@@ -179,6 +138,45 @@ spec:
       workspaces:
         - name: source
           workspace: pipeline-workspace
+    - name: git-clone
+      params:
+        - name: url
+          value: $(params.GIT_REPO)
+        - name: revision
+          value: $(params.GIT_REF)
+        - name: refspec
+          value: ''
+        - name: submodules
+          value: 'true'
+        - name: depth
+          value: '1'
+        - name: sslVerify
+          value: 'true'
+        - name: crtFileName
+          value: ca-bundle.crt
+        - name: subdirectory
+          value: ''
+        - name: sparseCheckoutDirectories
+          value: ''
+        - name: deleteExisting
+          value: 'true'
+        - name: httpProxy
+          value: ''
+        - name: httpsProxy
+          value: ''
+        - name: noProxy
+          value: ''
+        - name: verbose
+          value: 'true'
+        - name: gitInitImage
+          value: 'gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.40.2'
+        - name: userHome
+          value: /home/git
+      taskRef:
+        kind: Task
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: pipeline-workspace
   workspaces:
     - name: pipeline-workspace
-  finally: []
