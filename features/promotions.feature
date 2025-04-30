@@ -171,3 +171,49 @@ Feature: The promotion service back-end
         And I paste the "Id" field
         And I press the "Retrieve" button
         Then I should see the message "was not found"
+
+    Scenario: Invalidate a Promotion
+        When I visit the "Home Page"
+        And I press the "Clear" Button
+        And I set the "Name" to "first"
+        And I press the "Search" button
+        Then I should see the message "Success"
+        And I should see "first" in the "Name" field
+        When I press the "Invalidate" button
+        Then I should see the message "Success"
+        And I should see "False" in the "Validity" dropdown
+        When I press the "Clear" button
+        And I set the "Name" to "first"
+        And I press the "Search" button
+        Then I should see "False" in the "Validity" dropdown
+
+    Scenario: Validate a Promotion
+        When I visit the "Home Page"
+        And I press the "Clear" Button
+        And I set the "Name" to "third"
+        And I press the "Search" button
+        Then I should see the message "Success"
+        And I should see "third" in the "Name" field
+        When I press the "Invalidate" button
+        Then I should see the message "Success"
+        And I should see "False" in the "Validity" dropdown
+        When I press the "Clear" button
+        And I set the "Name" to "third"
+        And I press the "Search" button
+        Then I should see "False" in the "Validity" dropdown
+
+    Scenario: Extend a Promotion
+        When I visit the "Home Page"
+        And I press the "Clear" Button
+        And I set the "Name" to "third"
+        And I press the "Search" button
+        Then I should see the message "Success"
+        And I should see "third" in the "Name" field
+        When I set the "End Date" to "01-01-2026"
+        And I press the "Extend" button
+        Then I should see the message "Success"
+        When I press the "Clear" button
+        And I set the "Name" to "third"
+        And I press the "Search" button
+        Then I should see the message "Success"
+        And I should see "2026-01-01" in the "End Date" field
