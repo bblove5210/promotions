@@ -60,9 +60,10 @@
             <label class="control-label col-sm-2" for="promotion_category">Category:</label>
             <div class="col-sm-10">
               <select class="form-control" id="promotion_category">
-                <option value="SPEND_X_SAVE_Y" selected>Spend X Save Y</option>
+                <option value="UNKNOWN" selected>Unknown</option>
+                <option value="SPEND_X_SAVE_Y">Spend X Save Y</option>
                 <option value="BUY_X_GET_Y_FREE">Buy X Get Y Free</option>
-                <option value="PERCENTAGE_DISCOUNT">Percentage Discount</option>
+                <option value="PERCENTAGE_DISCOUNT_X">Percentage Discount</option>
               </select>
             </div>
           </div>
@@ -71,7 +72,7 @@
           <div class="form-group">
             <label class="control-label col-sm-2" for="promotion_discount_x">Discount X:</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="promotion_discount_x"
+              <input type="number" class="form-control" id="promotion_discount_x"
                 placeholder="Enter Value for Promotion Discount X">
             </div>
           </div>
@@ -80,7 +81,7 @@
           <div class="form-group">
             <label class="control-label col-sm-2" for="promotion_discount_y">Discount Y:</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="promotion_discount_y"
+              <input type="number" class="form-control" id="promotion_discount_y"
                 placeholder="Enter Value for Promotion Discount Y">
             </div>
           </div>
@@ -98,7 +99,7 @@
           <div class="form-group">
             <label class="control-label col-sm-2" for="promotion_product_id">Product ID:</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="promotion_product_id" placeholder="Enter Product ID">
+              <input type="number" class="form-control" id="promotion_product_id" placeholder="Enter Product ID">
             </div>
           </div>
 
@@ -150,9 +151,7 @@
           <tr>
             <th class="col-md-1">ID</th>
             <th class="col-md-2">Name</th>
-            <th class="col-md-2">Category</th>
-            <th class="col-md-1">Discount X</th>
-            <th class="col-md-1">Discount Y</th>
+            <th class="col-md-2">Type</th>
             <th class="col-md-1">Product ID</th>
             <th class="col-md-1">Validity</th>
             <th class="col-md-1">Start Date</th>
