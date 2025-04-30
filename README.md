@@ -8,8 +8,10 @@
 
 ## Overview
 
+Overview
 The Promotions Service is designed to manage promotional campaigns within a microservices architecture. It provides a RESTful API to create, update, retrieve, and delete promotions for an e-commerce platform. The service is built using Flask and follows best DevOps practices, including automated testing, CI/CD, and containerization.
-The Promotions Squad handles deals on products (Eg: 20 % discount, buy 1 get 1 etc.)
+The Promotions Squad handles deals on products (E.g.: 20% discount, buy 1 get 1 etc.)
+This project was developed as part of the NYU DevOps and Agile Methodologies course, implementing a complete DevOps pipeline, including Continuous Integration, Kubernetes deployment, BDD testing, and Continuous Delivery.
 
 ## Features Implemented
 
