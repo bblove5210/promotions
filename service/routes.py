@@ -113,7 +113,7 @@ promotion_model = api.inherit(
 extend_model = api.model(
     "ExtendModel",
     {
-        "end_date": fields.String(
+        "end_date": fields.Date(
             required=True, description="The new end date for the Promotion"
         )
     },

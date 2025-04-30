@@ -376,4 +376,37 @@ $(function () {
 
     });
 
+    // ****************************************
+    // Extend a Promotion
+    // ****************************************
+    $("#extend-btn").click(function () {
+
+        let promotion_id = $("#promotion_id").val();
+
+        let end_date = $("#promotion_end_date").val();
+
+        let data = {
+            "end_date": end_date,
+        };
+
+        let ajax = $.ajax({
+            type: "PUT",
+            url: `/api/promotions/${promotion_id}/extend`,
+            contentType: "application/json",
+            data: JSON.stringify(data)
+        })
+
+        ajax.done(function (res) {
+            //alert(res.toSource())
+            update_form_data(res)
+            flash_message("Success")
+        });
+
+        ajax.fail(function (res) {
+            clear_form_data()
+            flash_message(res.responseJSON.message)
+        });
+
+    });
+
 })
