@@ -29,37 +29,57 @@ This project was developed as part of the NYU DevOps and Agile Methodologies cou
 - Continuous Delivery with Tekton Pipeline
 
 ## Project Structure
-
-The project contains the following:
-
-```/promotions-service
-├── service/                   # Service Python package
-│   ├── __init__.py            # Package initializer
-│   ├── config.py              # Configuration parameters
-│   ├── models.py              # Business models for promotions
-│   ├── routes.py              # Service API endpoints
-│   ├── common/                # Common utilities
-│   │   ├── cli_commands.py    # Flask CLI commands
-│   │   ├── error_handlers.py  # HTTP error handling
-│   │   ├── log_handlers.py    # Logging setup
-│   │   ├── status.py          # HTTP status constants
-│   └── static/                # Static assets (if needed)
-│
-├── tests/                     # Test cases package
-│   ├── __init__.py            # Package initializer
-│   ├── factories.py           # Factory for fake test objects
-│   ├── test_models.py         # Unit tests for models
-│   ├── test_routes.py         # Unit tests for API endpoints
-│   ├── test_cli_commands.py   # Tests for CLI commands
-│
-├── .flaskenv                  # Flask environment variables
-├── .gitignore                 # Git ignore settings
-├── .gitattributes             # Git attributes settings
-├── pyproject.toml             # Python dependencies (Poetry)
-├── dot-env-example            # Example environment variable configuration
-├── Procfile                   # Deployment process file
-├── LICENSE                    # License file
-└── README.md                  # Project documentation
+```
+/promotions-service
+├── .github/workflows/        # GitHub Actions workflows
+│   └── ci.yml                # CI workflow definition
+├── .tekton/                  # Tekton pipeline configuration
+│   ├── pipeline.yaml         # Pipeline definition
+│   ├── tasks.yaml            # Task definitions
+│   ├── triggers.yaml         # Pipeline triggers
+│   └── workspace.yaml        # Workspace configuration
+├── features/                 # BDD testing
+│   ├── promotions.feature    # Feature specifications
+│   ├── environment.py        # Test environment setup
+│   └── steps/                # Step definitions
+│       └── web_steps.py      # Web testing steps
+├── frontend/                 # User interface
+│   ├── src/                  # React components
+│   └── public/               # Static assets
+├── k8s/                      # Kubernetes manifests
+│   ├── deployment.yaml       # App deployment
+│   ├── service.yaml          # Service definition
+│   ├── ingress.yaml          # Ingress configuration
+│   └── postgres/             # Database deployment
+│       ├── deployment.yaml   # StatefulSet configuration
+│       └── service.yaml      # DB service configuration
+├── service/                  # Service Python package
+│   ├── __init__.py           # Package initializer
+│   ├── config.py             # Configuration parameters
+│   ├── models.py             # Business models for promotions
+│   ├── routes.py             # Service API endpoints
+│   ├── common/               # Common utilities
+│   │   ├── cli_commands.py   # Flask CLI commands
+│   │   ├── error_handlers.py # HTTP error handling
+│   │   ├── log_handlers.py   # Logging setup
+│   │   └── status.py         # HTTP status constants
+│   └── static/               # Static assets (if needed)
+├── tests/                    # Test cases package
+│   ├── __init__.py           # Package initializer
+│   ├── factories.py          # Factory for fake test objects
+│   ├── test_models.py        # Unit tests for models
+│   ├── test_routes.py        # Unit tests for API endpoints
+│   └── test_cli_commands.py  # Tests for CLI commands
+├── Dockerfile                # Container definition
+├── .dockerignore             # Docker ignore file
+├── .flaskenv                 # Flask environment variables
+├── .gitignore                # Git ignore settings
+├── .gitattributes            # Git attributes settings
+├── k3d-config.yaml           # Local k3d configuration
+├── Makefile                  # Development and build commands
+├── Procfile                  # Deployment process file
+├── LICENSE                   # License file
+└── README.md                 # Project documentation
 ```
 
 ## Running the Service
