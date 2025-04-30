@@ -1,0 +1,8 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: sample-pipeline
+spec:
+  workspaces:
+    - name: shared-workspace
+  tasks: []
