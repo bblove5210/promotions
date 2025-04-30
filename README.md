@@ -108,27 +108,74 @@ For detailed API documentation, visit the Swagger UI at `/apidocs/` when the app
 
 ## Running the Service
 
-The service provides the following RESTful endpoints:
+### Local Development
 
-GET /api/promotions - List all promotions (supports query parameters)
-POST /api/promotions - Create a new promotion
-GET /api/promotions/{id} - Get a specific promotion
-PUT /api/promotions/{id} - Update a promotion
-DELETE /api/promotions/{id} - Delete a promotion
-POST /api/promotions/{id}/action - Perform an action on a promotion
-GET /health - Health check endpoint for Kubernetes
-GET /apidocs/ - Swagger documentation
+1. Clone the repository:
+git clone https://github.com/CSCI-GA-2820-SP25-003/promotions.git
+cd promotions
 
-For detailed API documentation, visit the Swagger UI at /apidocs/ when the application is running.
+2. Create and activate a virtual environment:
+python3 -m venv venv
+source venv/bin/activate  # On macOS/Linux
+venv\Scripts\activate     # On Windows
+
+3. Install dependencies:
+pip install -r requirements.txt
+
+4. Run the Flask service:
+flask run
+
+5. Access the API at http://127.0.0.1:8080 and the UI at http://127.0.0.1:8080/index.html
+
+### Kubernetes Deployment
+
+To run using local Kubernetes:
+```
+make cluster
+make build
+make push
+make postgres
+make deploy
+```
+(If `Get "https://cluster-registry:5000/v2/": dial tcp: lookup cluster-registry on 127.0.0.11:53: no such host` is shown after `make push`, run `sudo bash -c "echo '127.0.0.1    cluster-registry' >> /etc/hosts"`)
 
 ## Running Tests
 
-To ensure code quality, run unit tests using:
+### Unit Tests
 
-```
+To run unit tests and check code coverage:
 make test
+
+### BDD Tests
+
+To run behavior-driven tests:
+```
+cd features
+behave
 ```
 
+## CI/CD Pipeline
+
+### Continuous Integration
+
+This project uses GitHub Actions for continuous integration. On every pull request and push to the master branch, the following checks are automatically run:
+
+- Code quality checks (flake8, pylint)
+- Unit tests (95%+ code coverage requirement)
+- Code coverage reporting to Codecov
+
+### Continuous Delivery
+
+A complete Tekton pipeline has been implemented for automated continuous delivery to OpenShift. The pipeline consists of the following tasks:
+
+1. Clone the git repository
+2. Run linting and code quality checks
+3. Run unit tests
+4. Build and push Docker image
+5. Deploy to Kubernetes
+6. Run BDD tests on the deployed application
+
+The pipeline is triggered automatically on pushes to the master branch via a webhook.
 
 ## License
 
@@ -137,38 +184,9 @@ Copyright (c) 2016, 2025 [John Rofrano](https://www.linkedin.com/in/JohnRofrano/
 Licensed under the Apache License. See [LICENSE](LICENSE)
 
 This repository is part of the New York University (NYU) masters class: **CSCI-GA.2820-001 DevOps and Agile Methodologies** created and taught by [John Rofrano](https://cs.nyu.edu/~rofrano/), Adjunct Instructor, NYU Courant Institute, Graduate Division, Computer Science, and NYU Stern School of Business.
+You can now copy this entire block (including the triple backticks) and then remove the outer backticks when you paste it into your README.md file.RetryClaude can make mistakes. Please double-check responses.
 
 
-
-
-
-
-
-
-
-.
-
-.
-
-
-.
-
-.
-.
-.
-.
-.
-.
-
-
-
-
-
-
-
-
-
-.
 
 
 
