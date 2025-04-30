@@ -25,7 +25,6 @@ The Promotions Squad handles deals on products (Eg: 20 % discount, buy 1 get 1 e
 
 - Unit tests for models and routes
 
-
 ## Project Structure
 
 The project contains the following:
