@@ -8,10 +8,26 @@
 
 ## Overview
 
-Overview
-The Promotions Service is designed to manage promotional campaigns within a microservices architecture. It provides a RESTful API to create, update, retrieve, and delete promotions for an e-commerce platform. The service is built using Flask and follows best DevOps practices, including automated testing, CI/CD, and containerization.
+
 The Promotions Squad handles deals on products (E.g.: 20% discount, buy 1 get 1 etc.)
 This project was developed as part of the NYU DevOps and Agile Methodologies course, implementing a complete DevOps pipeline, including Continuous Integration, Kubernetes deployment, BDD testing, and Continuous Delivery.
+=======
+
+The service is currently deployed at the following URL: [https://promotion-qihangzhou-dev.apps.rm1.0a51.p1.openshiftapps.com/](https://promotion-qihangzhou-dev.apps.rm1.0a51.p1.openshiftapps.com/)
+
+## Supported Promotion Categories
+
+The system supports the following types of promotion categories:
+
+| Category             | Description                                                |
+|----------------------|------------------------------------------------------------|
+| `PERCENTAGE_DISCOUNT_X` | Apply a percentage-based discount (e.g. 20% off)            |
+| `BUY_X_GET_Y_FREE`      | Buy X items and get Y items free (e.g. buy 2 get 1 free)   |
+| `SPEND_X_SAVE_Y`        | Save Y dollars when spending at least X (e.g. spend $100 save $20) |
+| `UNKNOWN`               | Default value; used when category is not specified         |
+
+Each promotion includes fields to define the `discount_x` and `discount_y` parameters, start and end dates, validity status, and audit timestamps.
+
 
 ## Features Implemented
 
@@ -81,14 +97,6 @@ This project was developed as part of the NYU DevOps and Agile Methodologies cou
 ├── LICENSE                   # License file
 └── README.md                 # Project documentation
 ```
-Here's the raw markdown content for your README file, formatted so you can easily copy and paste it:
-markdown# NYU DevOps Promotions Service
-
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Python](https://img.shields.io/badge/Language-Python-blue.svg)](https://python.org/)
-[![CI](https://github.com/CSCI-GA-2820-SP25-003/promotions/actions/workflows/ci.yml/badge.svg)](https://github.com/CSCI-GA-2820-SP25-003/promotions/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/CSCI-GA-2820-SP25-003/promotions/graph/badge.svg?token=59HKL5TX2J)](https://codecov.io/gh/CSCI-GA-2820-SP25-003/promotions)
-
 
 
 ## API Documentation
