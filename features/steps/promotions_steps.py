@@ -54,13 +54,13 @@ def step_impl(context):
         payload = {
             "name": row["name"],
             "category": row["category"],
-            "discount_x": row["discount_x"],
-            "discount_y": row["discount_y"],
+            "discount_x": int(row["discount_x"]),
+            "discount_y": int(row["discount_y"]),
             "description": row["description"],
-            "product_id": row["product_id"],
+            "product_id": int(row["product_id"]),
             "validity": row["validity"] in ["True", "true", "1"],
             "start_date": row["start_date"],
-            "end_date": row["end_date"]
+            "end_date": row["end_date"],
         }
         context.resp = requests.post(rest_endpoint, json=payload, timeout=WAIT_TIMEOUT)
         expect(context.resp.status_code).equal_to(HTTP_201_CREATED)
