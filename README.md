@@ -108,7 +108,7 @@ make deploy
 To ensure code quality, run unit tests using:
 
 ```
-pytest tests/
+make test
 ```
 
 
