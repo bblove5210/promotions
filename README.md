@@ -9,7 +9,21 @@
 ## Overview
 
 The Promotions Service is designed to manage promotional campaigns within a microservices architecture. It provides a RESTful API to create, update, retrieve, and delete promotions for an e-commerce platform. The service is built using Flask and follows best DevOps practices, including automated testing, CI/CD, and containerization.
-The Promotions Squad handles deals on products (Eg: 20 % discount, buy 1 get 1 etc.)
+
+The service is currently deployed at the following URL: [https://promotion-qihangzhou-dev.apps.rm1.0a51.p1.openshiftapps.com/](https://promotion-qihangzhou-dev.apps.rm1.0a51.p1.openshiftapps.com/)
+
+## Supported Promotion Categories
+
+The system supports the following types of promotion categories:
+
+| Category             | Description                                                |
+|----------------------|------------------------------------------------------------|
+| `PERCENTAGE_DISCOUNT_X` | Apply a percentage-based discount (e.g. 20% off)            |
+| `BUY_X_GET_Y_FREE`      | Buy X items and get Y items free (e.g. buy 2 get 1 free)   |
+| `SPEND_X_SAVE_Y`        | Save Y dollars when spending at least X (e.g. spend $100 save $20) |
+| `UNKNOWN`               | Default value; used when category is not specified         |
+
+Each promotion includes fields to define the `discount_x` and `discount_y` parameters, start and end dates, validity status, and audit timestamps.
 
 ## Features Implemented
 
