@@ -156,13 +156,6 @@ class TestPromotion(TestCase):
         promotions = Promotion.all()
         self.assertEqual(len(promotions), 5)
 
-    def test_index(self):
-        """It should call the Home Page"""
-        response = self.client.get("/")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        data = response.get_json()
-        self.assertEqual(data["name"], "Promotion REST API Service")
-
     def test_find_promotion_name(self):
         """IT should find the promotion with the corresponding name"""
         promotion = PromotionFactory()

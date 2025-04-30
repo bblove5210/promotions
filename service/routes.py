@@ -50,16 +50,9 @@ api = Api(
 ######################################################################
 @app.route("/")
 def index():
-    """Root URL response"""
-    app.logger.info("Request for Root URL")
-    return (
-        {
-            "name": "Promotion REST API Service",
-            "version": "1.0",
-            "paths": api.url_for(PromotionCollection, _external=True),
-        },
-        status.HTTP_200_OK,
-    )
+    """Base URL for our service"""
+    app.logger.info("Request for Home Page.")
+    return app.send_static_file("index.html")
 
 
 ######################################################################
