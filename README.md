@@ -115,22 +115,9 @@ For detailed API documentation, visit the Swagger UI at `/apidocs/` when the app
 
 ### Local Development
 
-1. Clone the repository:
-git clone https://github.com/CSCI-GA-2820-SP25-003/promotions.git
-cd promotions
-
-2. Create and activate a virtual environment:
-python3 -m venv venv
-source venv/bin/activate  # On macOS/Linux
-venv\Scripts\activate     # On Windows
-
-3. Install dependencies:
-pip install -r requirements.txt
-
-4. Run the Flask service:
-flask run
-
-5. Access the API at http://127.0.0.1:8080 and the UI at http://127.0.0.1:8080/index.html
+```
+make run
+```
 
 ### Kubernetes Deployment
 
@@ -155,7 +142,6 @@ make test
 
 To run behavior-driven tests:
 ```
-cd features
 behave
 ```
 
