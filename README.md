@@ -5,7 +5,6 @@
 [![CI](https://github.com/CSCI-GA-2820-SP25-003/promotions/actions/workflows/ci.yml/badge.svg)](https://github.com/CSCI-GA-2820-SP25-003/promotions/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/CSCI-GA-2820-SP25-003/promotions/graph/badge.svg?token=59HKL5TX2J)](https://codecov.io/gh/CSCI-GA-2820-SP25-003/promotions)
 
-
 ## Overview
 
 **The Promotions Squad handles deals on products (E.g.: 20% discount, buy 1 get 1 etc.)**
